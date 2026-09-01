@@ -247,13 +247,13 @@
         }
 
         .popup-links a.btn-wikiloc {
-            background: #ea580c;
+            background: #c2410c;
             color: #ffffff;
             border: none;
         }
 
         .popup-links a.btn-wikiloc:hover {
-            background: #c2410c;
+            background: #9a3412;
         }
 
         .popup-links a.btn-gulliver {
@@ -434,7 +434,7 @@
             const color = getMarkerColor(diff);
             return L.divIcon({
                 className: 'custom-pin',
-                html: `<div style="background-color: ${color}; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.5);"></div>`,
+                html: '<div style="background-color: ' + color + '; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.5);"></div>',
                 iconSize: [14, 14],
                 iconAnchor: [7, 7]
             });
@@ -451,41 +451,44 @@
             listContainer.innerHTML = '';
 
             data.forEach(route => {
-                // Generazione link tramite Google Search & API di Google Maps (Affidabili al 100%)
-                const searchGulliver = `https://www.google.com/search?q=${encodeURIComponent('site:gulliver.it ' + route.name + ' Lofoten')}`;
-                const searchWikiloc = `https://www.google.com/search?q=${encodeURIComponent('site:wikiloc.com sci alpinismo ' + route.name + ' Lofoten')}`;
-                const searchOutdooractive = `https://www.google.com/search?q=${encodeURIComponent('site:outdooractive.com ' + route.name + ' Lofoten')}`;
-                const searchGoogleBlogs = `https://www.google.com/search?q=${encodeURIComponent('scialpinismo ' + route.name + ' Lofoten relazione GPX')}`;
-                const gmapsNav = `https://www.google.com/maps/search/?api=1&query=${route.lat},${route.lng}`;
+                // Costruzione stringhe URL pulite e dirette
+                const qName = encodeURIComponent(route.name);
+                const qLofoten = encodeURIComponent(route.name + " Lofoten");
+                const qSki = encodeURIComponent(route.name + " Lofoten ski");
 
-                const popupHTML = `
-                    <div class="popup-content">
-                        <h3>${route.name} (${route.elev}m)</h3>
-                        <div class="popup-info">
-                            <strong>Zona:</strong> ${route.area}<br>
-                            <strong>Difficoltà:</strong> <span class="badge ${route.diff}">${route.diff}</span><br>
-                            <strong>Dislivello:</strong> +${route.gain}m | <strong>Esposizione:</strong> ${route.exp}<br>
-                            <p style="margin-top:5px;"><em>${route.desc}</em></p>
-                        </div>
-                        <div class="popup-links">
-                            <a href="${searchGulliver}" target="_blank" rel="noopener noreferrer" class="btn-gulliver">
-                                <i class="fa-solid fa-book"></i> Cerca Scheda Gulliver
-                            </a>
-                            <a href="${searchWikiloc}" target="_blank" rel="noopener noreferrer" class="btn-wikiloc">
-                                <i class="fa-solid fa-route"></i> Tracce GPX su Wikiloc
-                            </a>
-                            <a href="${searchOutdooractive}" target="_blank" rel="noopener noreferrer">
-                                <i class="fa-solid fa-mountain"></i> Cerca su Outdooractive
-                            </a>
-                            <a href="${searchGoogleBlogs}" target="_blank" rel="noopener noreferrer">
-                                <i class="fa-solid fa-magnifying-glass"></i> Blog & Report Italiani
-                            </a>
-                            <a href="${gmapsNav}" target="_blank" rel="noopener noreferrer" class="gmaps-btn">
-                                <i class="fa-solid fa-car"></i> Naviga al Parcheggio con G-Maps
-                            </a>
-                        </div>
-                    </div>
-                `;
+                const linkWikiloc = "https://www.wikiloc.com/wikiloc/find.do?q=" + qSki;
+                const linkCamptocamp = "https://www.camptocamp.org/routes?q=" + qName;
+                const linkGulliver = "https://www.google.com/search?q=" + encodeURIComponent("gulliver.it " + route.name + " lofoten sci");
+                const linkGoogleReport = "https://www.google.com/search?q=" + encodeURIComponent(route.name + " Lofoten sci alpinismo relazione gpx");
+                const linkGMaps = "https://www.google.com/maps/search/?api=1&query=" + route.lat + "," + route.lng;
+
+                const popupHTML = 
+                    '<div class="popup-content">' +
+                        '<h3>' + route.name + ' (' + route.elev + 'm)</h3>' +
+                        '<div class="popup-info">' +
+                            '<strong>Zona:</strong> ' + route.area + '<br>' +
+                            '<strong>Difficoltà:</strong> <span class="badge ' + route.diff + '">' + route.diff + '</span><br>' +
+                            '<strong>Dislivello:</strong> +' + route.gain + 'm | <strong>Esposizione:</strong> ' + route.exp + '<br>' +
+                            '<p style="margin-top:5px;"><em>' + route.desc + '</em></p>' +
+                        '</div>' +
+                        '<div class="popup-links">' +
+                            '<a href="' + linkWikiloc + '" target="_blank" rel="noopener noreferrer" class="btn-wikiloc">' +
+                                '<i class="fa-solid fa-route"></i> Wikiloc (Tracce GPX)' +
+                            '</a>' +
+                            '<a href="' + linkCamptocamp + '" target="_blank" rel="noopener noreferrer">' +
+                                '<i class="fa-solid fa-mountain"></i> Camptocamp (Scheda tecnica)' +
+                            '</a>' +
+                            '<a href="' + linkGulliver + '" target="_blank" rel="noopener noreferrer" class="btn-gulliver">' +
+                                '<i class="fa-solid fa-book"></i> Gulliver (Relazione Italia)' +
+                            '</a>' +
+                            '<a href="' + linkGoogleReport + '" target="_blank" rel="noopener noreferrer">' +
+                                '<i class="fa-solid fa-magnifying-glass"></i> Blog & Report Online' +
+                            '</a>' +
+                            '<a href="' + linkGMaps + '" target="_blank" rel="noopener noreferrer" class="gmaps-btn">' +
+                                '<i class="fa-solid fa-car"></i> Naviga al Parcheggio (GPS)' +
+                            '</a>' +
+                        '</div>' +
+                    '</div>';
 
                 const marker = L.marker([route.lat, route.lng], { icon: createCustomIcon(route.diff) })
                     .bindPopup(popupHTML)
@@ -494,18 +497,17 @@
                 markers.push({ id: route.id, marker: marker, data: route });
 
                 const card = document.createElement('div');
-                card.className = `route-card ${route.diff}`;
-                card.innerHTML = `
-                    <div class="route-title">
-                        <span>${route.name}</span>
-                        <span class="badge ${route.diff}">${route.diff}</span>
-                    </div>
-                    <div class="route-meta">
-                        <span><i class="fa-solid fa-mountain"></i> ${route.elev}m</span>
-                        <span><i class="fa-solid fa-arrow-up-long"></i> +${route.gain}m</span>
-                        <span><i class="fa-solid fa-compass"></i> ${route.exp}</span>
-                    </div>
-                `;
+                card.className = 'route-card ' + route.diff;
+                card.innerHTML = 
+                    '<div class="route-title">' +
+                        '<span>' + route.name + '</span>' +
+                        '<span class="badge ' + route.diff + '">' + route.diff + '</span>' +
+                    '</div>' +
+                    '<div class="route-meta">' +
+                        '<span><i class="fa-solid fa-mountain"></i> ' + route.elev + 'm</span>' +
+                        '<span><i class="fa-solid fa-arrow-up-long"></i> +' + route.gain + 'm</span>' +
+                        '<span><i class="fa-solid fa-compass"></i> ' + route.exp + '</span>' +
+                    '</div>';
 
                 card.addEventListener('click', () => {
                     map.setView([route.lat, route.lng], 13);
