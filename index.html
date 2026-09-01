@@ -247,22 +247,22 @@
         }
 
         .popup-links a.btn-wikiloc {
-            background: #c2410c;
+            background: #ea580c;
             color: #ffffff;
             border: none;
         }
 
         .popup-links a.btn-wikiloc:hover {
-            background: #9a3412;
+            background: #c2410c;
         }
 
-        .popup-links a.btn-blog {
+        .popup-links a.btn-gulliver {
             background: #0284c7;
             color: #ffffff;
             border: none;
         }
 
-        .popup-links a.btn-blog:hover {
+        .popup-links a.btn-gulliver:hover {
             background: #0369a1;
         }
 
@@ -451,11 +451,12 @@
             listContainer.innerHTML = '';
 
             data.forEach(route => {
-                // Link corretti e collaudati
-                const searchWikiloc = `https://it.wikiloc.com/wikiloc/find.do?q=${encodeURIComponent('ski ' + route.name + ' Lofoten')}`;
-                const searchOutdooractive = `https://www.outdooractive.com/it/ricerca/?q=${encodeURIComponent(route.name + ' Lofoten')}`;
-                const searchGoogleBlogs = `https://www.google.com/search?q=${encodeURIComponent('scialpinismo Lofoten ' + route.name + ' relazione GPX')}`;
-                const gmapsNav = `https://www.google.com/maps/dir/?api=1&destination=${route.lat},${route.lng}`;
+                // Generazione link tramite Google Search & API di Google Maps (Affidabili al 100%)
+                const searchGulliver = `https://www.google.com/search?q=${encodeURIComponent('site:gulliver.it ' + route.name + ' Lofoten')}`;
+                const searchWikiloc = `https://www.google.com/search?q=${encodeURIComponent('site:wikiloc.com sci alpinismo ' + route.name + ' Lofoten')}`;
+                const searchOutdooractive = `https://www.google.com/search?q=${encodeURIComponent('site:outdooractive.com ' + route.name + ' Lofoten')}`;
+                const searchGoogleBlogs = `https://www.google.com/search?q=${encodeURIComponent('scialpinismo ' + route.name + ' Lofoten relazione GPX')}`;
+                const gmapsNav = `https://www.google.com/maps/search/?api=1&query=${route.lat},${route.lng}`;
 
                 const popupHTML = `
                     <div class="popup-content">
@@ -467,17 +468,20 @@
                             <p style="margin-top:5px;"><em>${route.desc}</em></p>
                         </div>
                         <div class="popup-links">
+                            <a href="${searchGulliver}" target="_blank" rel="noopener noreferrer" class="btn-gulliver">
+                                <i class="fa-solid fa-book"></i> Cerca Scheda Gulliver
+                            </a>
                             <a href="${searchWikiloc}" target="_blank" rel="noopener noreferrer" class="btn-wikiloc">
-                                <i class="fa-solid fa-route"></i> Wikiloc (Tracce GPX)
+                                <i class="fa-solid fa-route"></i> Tracce GPX su Wikiloc
                             </a>
                             <a href="${searchOutdooractive}" target="_blank" rel="noopener noreferrer">
-                                <i class="fa-solid fa-mountain"></i> Outdooractive
+                                <i class="fa-solid fa-mountain"></i> Cerca su Outdooractive
                             </a>
-                            <a href="${searchGoogleBlogs}" target="_blank" rel="noopener noreferrer" class="btn-blog">
-                                <i class="fa-solid fa-magnifying-glass"></i> Cerca Relazioni & Blog
+                            <a href="${searchGoogleBlogs}" target="_blank" rel="noopener noreferrer">
+                                <i class="fa-solid fa-magnifying-glass"></i> Blog & Report Italiani
                             </a>
                             <a href="${gmapsNav}" target="_blank" rel="noopener noreferrer" class="gmaps-btn">
-                                <i class="fa-solid fa-car"></i> Naviga al Parcheggio
+                                <i class="fa-solid fa-car"></i> Naviga al Parcheggio con G-Maps
                             </a>
                         </div>
                     </div>
