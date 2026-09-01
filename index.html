@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lofoten Ski Touring - Mappa Interattiva 50 Itinerari</title>
     
+    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- FontAwesome per Icone -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     
     <style>
@@ -265,6 +267,7 @@
 </head>
 <body>
 
+    <!-- Sidebar di Navigazione -->
     <div id="sidebar">
         <div class="header">
             <h1><i class="fa-solid fa-person-skiing"></i> Lofoten Ski Map</h1>
@@ -291,11 +294,14 @@
         </div>
 
         <div id="route-list">
-            </div>
+            <!-- I card verranno generati da JS -->
+        </div>
     </div>
 
+    <!-- Mappa Interattiva -->
     <div id="map"></div>
 
+    <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
@@ -369,10 +375,10 @@
         // Inizializzazione Mappa Leaflet
         const map = L.map('map').setView([68.22, 14.10], 9);
 
-        // Tile Layers (Inclusa Mappa Ufficiale Topografica Norvegese Kartverket)
+        // Tile Layers
         const kartverketTopo = L.tileLayer('https://cache.kartverket.no/v1/wmts/1.0.0/topo/default/webmercator/{z}/{y}/{x}.png', {
             maxZoom: 18,
-            attribution: '&copy; <a href="https://www.kartverket.no/">Kartverket</a>'
+            attribution: '&copy; <a href="https://www.kartverket.no/" target="_blank" rel="noopener noreferrer">Kartverket</a>'
         });
 
         const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -384,7 +390,6 @@
             attribution: 'Tiles &copy; Esri'
         });
 
-        // Imposta Kartverket Topo di default
         kartverketTopo.addTo(map);
 
         const baseMaps = {
@@ -394,7 +399,6 @@
         };
         L.control.layers(baseMaps).addTo(map);
 
-        // Icone Custom per la Mappa
         function getMarkerColor(diff) {
             switch(diff) {
                 case 'MS': return '#22c55e';
@@ -418,9 +422,7 @@
         let markers = [];
         let userLocationMarker = null;
 
-        // Renderizzatore Marker e Card
         function renderRoutes(data) {
-            // Pulisci marker esistenti
             markers.forEach(m => map.removeLayer(m.marker));
             markers = [];
 
@@ -428,7 +430,12 @@
             listContainer.innerHTML = '';
 
             data.forEach(route => {
-                // 1. Crea Popup HTML
+                // Link corretti e collaudati
+                const searchGulliver = `https://www.google.com/search?q=site:gulliver.it+Lofoten+${encodeURIComponent(route.name)}`;
+                const searchC2C = `https://www.camptocamp.org/routes?q=${encodeURIComponent(route.name)}`;
+                const mapUT = `https://ut.no/kart#12/${route.lat}/${route.lng}`;
+                const gmapsDir = `https://www.google.com/maps/dir/?api=1&destination=${route.lat},${route.lng}`;
+
                 const popupHTML = `
                     <div class="popup-content">
                         <h3>${route.name} (${route.elev}m)</h3>
@@ -439,22 +446,20 @@
                             <p style="margin-top:5px;"><em>${route.desc}</em></p>
                         </div>
                         <div class="popup-links">
-                            <a href="https://www.gulliver.it/ricerca/?q=Lofoten+${encodeURIComponent(route.name)}" target="_blank"><i class="fa-solid fa-book"></i> Cerca Relazione su Gulliver</a>
-                            <a href="https://www.camptocamp.org/routes?q=${encodeURIComponent(route.name)}+Lofoten" target="_blank"><i class="fa-solid fa-mountain"></i> Cerca su Camptocamp</a>
-                            <a href="https://ut.no/utforsker/kart#12/${route.lat}/${route.lng}" target="_blank"><i class="fa-solid fa-map"></i> Apri su UT.no</a>
-                            <a href="https://www.google.com/maps/dir/?api=1&destination=${route.lat},${route.lng}" target="_blank" class="gmaps-btn"><i class="fa-solid fa-car"></i> Naviga al Parcheggio (G-Maps)</a>
+                            <a href="${searchGulliver}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-book"></i> Cerca Relazione su Gulliver</a>
+                            <a href="${searchC2C}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-mountain"></i> Scheda su Camptocamp</a>
+                            <a href="${mapUT}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-map"></i> Mappa Topo su UT.no</a>
+                            <a href="${gmapsDir}" target="_blank" rel="noopener noreferrer" class="gmaps-btn"><i class="fa-solid fa-car"></i> Naviga al Parcheggio (G-Maps)</a>
                         </div>
                     </div>
                 `;
 
-                // 2. Aggiungi Marker sulla Mappa
                 const marker = L.marker([route.lat, route.lng], { icon: createCustomIcon(route.diff) })
                     .bindPopup(popupHTML)
                     .addTo(map);
 
                 markers.push({ id: route.id, marker: marker, data: route });
 
-                // 3. Crea Card nella Sidebar
                 const card = document.createElement('div');
                 card.className = `route-card ${route.diff}`;
                 card.innerHTML = `
@@ -469,7 +474,6 @@
                     </div>
                 `;
 
-                // Click sulla card -> Zoom sulla mappa e apri popup
                 card.addEventListener('click', () => {
                     map.setView([route.lat, route.lng], 13);
                     marker.openPopup();
@@ -479,7 +483,6 @@
             });
         }
 
-        // Filtro per Difficoltà
         let currentDifficulty = 'ALL';
         function filterDifficulty(diff, btn) {
             currentDifficulty = diff;
@@ -488,7 +491,6 @@
             applyFilters();
         }
 
-        // Filtro per Ricerca Testo
         function filterRoutes() {
             applyFilters();
         }
@@ -503,7 +505,6 @@
             renderRoutes(filtered);
         }
 
-        // Geolocalizzazione Utente (GPS)
         function locateUser() {
             if (!navigator.geolocation) {
                 alert("La geolocalizzazione non è supportata dal tuo browser.");
@@ -531,13 +532,12 @@
                     map.setView([lat, lng], 11);
                 },
                 (error) => {
-                    alert("Impossibile rilevare la posizione GPS. Assicurati di aver dato i permessi al browser.");
+                    alert("Impossibile rilevare la posizione GPS. Verifica i permessi del browser.");
                 },
                 { enableHighAccuracy: true }
             );
         }
 
-        // Init iniziale
         renderRoutes(routes);
     </script>
 </body>
