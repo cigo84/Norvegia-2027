@@ -131,13 +131,11 @@
         .popup-content h3 { color: #38bdf8; font-size: 1.1rem; margin-bottom: 4px; }
         .popup-info { font-size: 0.85rem; margin-bottom: 8px; color: #cbd5e1; }
         
-        .popup-links { display: flex; flex-direction: column; gap: 6px; }
-        .popup-links a { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px; text-decoration: none; border-radius: 6px; font-size: 0.8rem; font-weight: 600; border: 1px solid #334155; }
+        .popup-links { display: flex; flex-direction: column; gap: 8px; }
+        .popup-links a { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; text-decoration: none; border-radius: 6px; font-size: 0.85rem; font-weight: 600; border: 1px solid #334155; }
         
         .popup-links a.gmaps-btn { background: #059669; color: #fff; border: none; }
-        .popup-links a.btn-wikiloc { background: #c2410c; color: #fff; border: none; }
-        .popup-links a.btn-gulliver { background: #0284c7; color: #fff; border: none; }
-        .popup-links a.btn-c2c { background: #475569; color: #fff; border: none; }
+        .popup-links a.btn-google { background: #4285F4; color: #fff; border: none; }
 
         @media (min-width: 769px) {
             .app-container { flex-direction: row-reverse; }
@@ -153,6 +151,7 @@
         <div id="sidebar">
             <div class="header">
                 <h1><i class="fa-solid fa-map-pin"></i> Lofoten - Punti di Partenza</h1>
+                <p>Pin posizionati sui parcheggi (non sulle vette)</p>
             </div>
 
             <div class="controls">
@@ -168,23 +167,23 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // LE COORDINATE ORA SONO QUELLE ESATTE DEI PARCHEGGI (START POINTS) E NON DELLE VETTE.
+        // Le coordinate indicano IL PUNTO DA CUI SI PARTE A PIEDI/SCI e si lascia l'auto
         const routes = [
-            { id: 1, name: "Geitgaljen", area: "Laupstad", lat: 68.3751, lng: 14.6738, elev: 1085, gain: 1085, diff: "OSA", exp: "S", desc: "Regina delle Lofoten. Posizione pin: Parcheggio presso Liland/Laupstad." },
-            { id: 2, name: "Pilan & Sautinden", area: "Laupstad", lat: 68.3686, lng: 14.6543, elev: 828, gain: 800, diff: "BS", exp: "S/SW", desc: "Classica sicura e gettonata. Posizione pin: Parcheggio lungo la E10." },
-            { id: 3, name: "Kvittinden", area: "Austnesfjorden", lat: 68.3571, lng: 14.6062, elev: 745, gain: 745, diff: "MS", exp: "S", desc: "Bellissima sciata sul fiordo. Posizione pin: Parcheggio E10 vicino a Sildpollnes." },
-            { id: 4, name: "Torskmannen", area: "Sydal", lat: 68.3371, lng: 14.5367, elev: 755, gain: 740, diff: "BS", exp: "SE", desc: "Ampi pendii continui. Posizione pin: Parcheggio al porticciolo di Sydal." },
-            { id: 5, name: "Varden", area: "Svolvær", lat: 68.2435, lng: 14.5458, elev: 464, gain: 450, diff: "MS", exp: "S", desc: "La gita sopra casa. Posizione pin: Parcheggio dell'asilo Knutmarka a Svolvær." },
-            { id: 6, name: "Småtindan", area: "Kabelvåg", lat: 68.2045, lng: 14.3942, elev: 662, gain: 650, diff: "BS", exp: "S", desc: "Una delle uscite più belle. Posizione pin: Parcheggio di Ørsnes." },
-            { id: 7, name: "Glomtinden", area: "Henningsvær", lat: 68.2163, lng: 14.4042, elev: 419, gain: 400, diff: "MS", exp: "S/SE", desc: "Ottima per giornate di brutto tempo. Posizione pin: Passo di Rørvikskaret." },
-            { id: 8, name: "Festvågtinden", area: "Henningsvær", lat: 68.1678, lng: 14.2140, elev: 541, gain: 540, diff: "BS", exp: "S", desc: "A picco sul mare. Posizione pin: Piazzola a Festvåg, prima dei ponti." },
-            { id: 9, name: "Hoven", area: "Gimsøya", lat: 68.3344, lng: 14.0950, elev: 368, gain: 360, diff: "MS", exp: "360", desc: "Gita isolata sulla spiaggia. Posizione pin: Parcheggio del Golf Club Hov." },
-            { id: 10, name: "Justadtinden", area: "Vestvågøya", lat: 68.2125, lng: 13.8820, elev: 738, gain: 700, diff: "MS", exp: "SE", desc: "Lunga e panoramica. Posizione pin: Ampio parcheggio al passo Hagskaret." },
-            { id: 11, name: "Himmeltinden", area: "Haukland", lat: 68.1996, lng: 13.5292, elev: 964, gain: 950, diff: "BS", exp: "W", desc: "Sopra spiagge caraibiche. Posizione pin: Parcheggio spiaggia di Haukland." },
-            { id: 12, name: "Stornappstinden", area: "Flakstad", lat: 68.1278, lng: 13.4357, elev: 740, gain: 730, diff: "BS", exp: "N", desc: "Polvere garantita a nord. Posizione pin: Uscita Sud tunnel di Napp (Nappskaret)." },
-            { id: 13, name: "Ryten", area: "Fredvang", lat: 68.0833, lng: 13.1558, elev: 543, gain: 530, diff: "MS", exp: "SW", desc: "Vistosa scogliera su Kvalvika. Posizione pin: Parcheggio Innersand (Fredvang)." },
-            { id: 14, name: "Volandstinden", area: "Fredvang", lat: 68.0818, lng: 13.1973, elev: 547, gain: 540, diff: "BS", exp: "N", desc: "Piccola piramide appuntita. Posizione pin: Slargo incrocio Skjelfjord/Fredvang." },
-            { id: 15, name: "Munkan", area: "Sørvågen", lat: 67.8893, lng: 13.0163, elev: 775, gain: 760, diff: "BS", exp: "SE", desc: "Nel selvaggio sud. Posizione pin: Parcheggio scuola/municipio di Sørvågen." }
+            { id: 1, name: "Geitgaljen", area: "Laupstad", lat: 68.3751, lng: 14.6738, elev: 1085, gain: 1085, diff: "OSA", exp: "S", desc: "Regina delle Lofoten. Parcheggio presso Liland/Laupstad." },
+            { id: 2, name: "Pilan & Sautinden", area: "Laupstad", lat: 68.3686, lng: 14.6543, elev: 828, gain: 800, diff: "BS", exp: "S/SW", desc: "Classica sicura e gettonata. Parcheggio lungo la E10." },
+            { id: 3, name: "Kvittinden", area: "Austnesfjorden", lat: 68.3571, lng: 14.6062, elev: 745, gain: 745, diff: "MS", exp: "S", desc: "Bellissima sciata sul fiordo. Parcheggio E10 vicino a Sildpollnes." },
+            { id: 4, name: "Torskmannen", area: "Sydal", lat: 68.3371, lng: 14.5367, elev: 755, gain: 740, diff: "BS", exp: "SE", desc: "Ampi pendii continui. Parcheggio al porticciolo di Sydal." },
+            { id: 5, name: "Varden", area: "Svolvær", lat: 68.2435, lng: 14.5458, elev: 464, gain: 450, diff: "MS", exp: "S", desc: "La gita sopra casa. Parcheggio dell'asilo Knutmarka a Svolvær." },
+            { id: 6, name: "Småtindan", area: "Kabelvåg", lat: 68.2045, lng: 14.3942, elev: 662, gain: 650, diff: "BS", exp: "S", desc: "Una delle uscite più belle. Parcheggio di Ørsnes." },
+            { id: 7, name: "Glomtinden", area: "Henningsvær", lat: 68.2163, lng: 14.4042, elev: 419, gain: 400, diff: "MS", exp: "S/SE", desc: "Ottima per giornate di brutto tempo. Passo di Rørvikskaret." },
+            { id: 8, name: "Festvågtinden", area: "Henningsvær", lat: 68.1678, lng: 14.2140, elev: 541, gain: 540, diff: "BS", exp: "S", desc: "A picco sul mare. Piazzola a Festvåg, prima dei ponti." },
+            { id: 9, name: "Hoven", area: "Gimsøya", lat: 68.3344, lng: 14.0950, elev: 368, gain: 360, diff: "MS", exp: "360", desc: "Gita isolata sulla spiaggia. Parcheggio del Golf Club Hov." },
+            { id: 10, name: "Justadtinden", area: "Vestvågøya", lat: 68.2125, lng: 13.8820, elev: 738, gain: 700, diff: "MS", exp: "SE", desc: "Lunga e panoramica. Ampio parcheggio al passo Hagskaret." },
+            { id: 11, name: "Himmeltinden", area: "Haukland", lat: 68.1996, lng: 13.5292, elev: 964, gain: 950, diff: "BS", exp: "W", desc: "Sopra spiagge caraibiche. Parcheggio spiaggia di Haukland." },
+            { id: 12, name: "Stornappstinden", area: "Flakstad", lat: 68.1278, lng: 13.4357, elev: 740, gain: 730, diff: "BS", exp: "N", desc: "Polvere garantita a nord. Uscita Sud tunnel di Napp (Nappskaret)." },
+            { id: 13, name: "Ryten", area: "Fredvang", lat: 68.0833, lng: 13.1558, elev: 543, gain: 530, diff: "MS", exp: "SW", desc: "Vistosa scogliera su Kvalvika. Parcheggio Innersand (Fredvang)." },
+            { id: 14, name: "Volandstinden", area: "Fredvang", lat: 68.0818, lng: 13.1973, elev: 547, gain: 540, diff: "BS", exp: "N", desc: "Piccola piramide appuntita. Slargo incrocio Skjelfjord/Fredvang." },
+            { id: 15, name: "Munkan", area: "Sørvågen", lat: 67.8893, lng: 13.0163, elev: 775, gain: 760, diff: "BS", exp: "SE", desc: "Nel selvaggio sud. Parcheggio scuola/municipio di Sørvågen." }
         ];
 
         const map = L.map('map', { zoomControl: false }).setView([68.22, 14.10], 9);
@@ -207,34 +206,24 @@
             list.innerHTML = '';
 
             data.forEach(route => {
-                // LINK DIRETTI AI MOTORI DI RICERCA INTERNI (Funzionano al 100%)
-                const nameURI = encodeURIComponent(route.name);
                 
-                // Google Maps usa le coordinate esatte del parcheggio, quindi aprirà l'app calcolando la strada vera.
+                // Link navigatore per Google Maps (Usa le coordinate per guidarti al parcheggio)
                 const navMap = 'https://www.google.com/maps/dir/?api=1&destination=' + route.lat + ',' + route.lng;
                 
-                // Gulliver ricerca tramite la sua stringa query nativa (?s=nome)
-                const searchGulliver = 'https://www.gulliver.it/?s=' + nameURI;
-                
-                // Wikiloc ricerca filtrata su Norvegia/Scialpinismo
-                const searchWikiloc = 'https://it.wikiloc.com/percorsi/sci-alpinismo/norvegia?q=' + nameURI;
-                
-                // Camptocamp usa il motore Waypoints
-                const searchC2C = 'https://www.camptocamp.org/waypoints?q=' + nameURI;
+                // Link Ricerca Google pura infallibile
+                const searchGoogle = 'https://www.google.com/search?q=' + encodeURIComponent(route.name + ' scialpinismo');
 
                 const popup = `
                     <div class="popup-content">
                         <h3>${route.name}</h3>
                         <div class="popup-info">
-                            <strong><i class="fa-solid fa-parking"></i> Parcheggio:</strong> ${route.area}<br>
+                            <strong><i class="fa-solid fa-parking"></i> Base Partenza:</strong> ${route.area}<br>
                             <strong>Cima:</strong> +${route.gain}m | Diff: <span class="badge ${route.diff}">${route.diff}</span><br>
                             <p style="margin-top:5px; font-size:0.75rem;">${route.desc}</p>
                         </div>
                         <div class="popup-links">
                             <a href="${navMap}" target="_blank" class="gmaps-btn"><i class="fa-solid fa-car"></i> Naviga al Parcheggio</a>
-                            <a href="${searchWikiloc}" target="_blank" class="btn-wikiloc"><i class="fa-solid fa-route"></i> Cerca Traccia Wikiloc</a>
-                            <a href="${searchGulliver}" target="_blank" class="btn-gulliver"><i class="fa-solid fa-book"></i> Cerca Relazione Gulliver</a>
-                            <a href="${searchC2C}" target="_blank" class="btn-c2c"><i class="fa-solid fa-mountain"></i> Cerca su Camptocamp</a>
+                            <a href="${searchGoogle}" target="_blank" class="btn-google"><i class="fa-brands fa-google"></i> Cerca "${route.name} scialpinismo"</a>
                         </div>
                     </div>`;
 
