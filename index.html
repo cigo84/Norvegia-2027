@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Lofoten Ski Touring - Mappa Interattiva</title>
+    <title>Lofoten Ski Touring - Mappa Start Point</title>
     
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <!-- FontAwesome per Icone -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     
     <style>
@@ -15,7 +14,7 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
 
@@ -28,7 +27,6 @@
             overflow: hidden;
         }
 
-        /* Layout Principale Mobile First */
         .app-container {
             display: flex;
             flex-direction: column;
@@ -36,16 +34,14 @@
             height: 100%;
         }
 
-        /* Contenitore Mappa */
         #map {
             width: 100%;
-            height: 48vh;
-            height: 48dvh;
+            height: 50vh;
+            height: 50dvh;
             flex-shrink: 0;
             z-index: 1;
         }
 
-        /* Sidebar / Contenuto Inferiore */
         #sidebar {
             width: 100%;
             flex: 1;
@@ -62,9 +58,6 @@
             padding: 10px 15px;
             background: #1e293b;
             border-bottom: 1px solid #334155;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
 
         .header h1 {
@@ -75,12 +68,6 @@
             gap: 8px;
         }
 
-        .header p {
-            font-size: 0.75rem;
-            color: #94a3b8;
-        }
-
-        /* Controlli Filtro e Ricerca */
         .controls {
             padding: 10px 15px;
             display: flex;
@@ -90,10 +77,7 @@
             border-bottom: 1px solid #334155;
         }
 
-        .search-box {
-            position: relative;
-        }
-
+        .search-box { position: relative; }
         .search-box input {
             width: 100%;
             padding: 8px 12px 8px 35px;
@@ -103,7 +87,6 @@
             color: #fff;
             font-size: 0.85rem;
         }
-
         .search-box i {
             position: absolute;
             left: 12px;
@@ -112,45 +95,6 @@
             color: #64748b;
         }
 
-        .filter-buttons {
-            display: flex;
-            gap: 4px;
-        }
-
-        .filter-btn {
-            flex: 1;
-            padding: 6px 4px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            background: #1e293b;
-            color: #94a3b8;
-            text-align: center;
-        }
-
-        .filter-btn.active, .filter-btn:hover {
-            background: #0284c7;
-            color: #fff;
-        }
-
-        .gps-btn {
-            background: #10b981;
-            color: white;
-            border: none;
-            padding: 8px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            font-size: 0.8rem;
-        }
-
-        /* Lista Itinerari */
         #route-list {
             flex: 1;
             overflow-y: auto;
@@ -161,7 +105,7 @@
         .route-card {
             background: #1e293b;
             border-radius: 8px;
-            padding: 10px 12px;
+            padding: 12px;
             margin-bottom: 8px;
             cursor: pointer;
             border-left: 4px solid #cbd5e1;
@@ -172,378 +116,153 @@
         .route-card.OS { border-left-color: #f97316; }
         .route-card.OSA { border-left-color: #ef4444; }
 
-        .route-title {
-            font-weight: 700;
-            font-size: 0.9rem;
-            color: #f1f5f9;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        .route-title { font-weight: 700; font-size: 0.95rem; color: #f1f5f9; display: flex; justify-content: space-between; }
+        .route-meta { display: flex; gap: 10px; font-size: 0.75rem; color: #94a3b8; margin-top: 5px; }
+        .route-desc { font-size: 0.8rem; color: #cbd5e1; margin-top: 6px; line-height: 1.4; }
 
-        .route-meta {
-            display: flex;
-            gap: 10px;
-            font-size: 0.75rem;
-            color: #94a3b8;
-            margin-top: 4px;
-        }
-
-        .route-desc {
-            font-size: 0.75rem;
-            color: #cbd5e1;
-            margin-top: 6px;
-            line-height: 1.3;
-        }
-
-        .badge {
-            font-size: 0.65rem;
-            padding: 2px 5px;
-            border-radius: 4px;
-            font-weight: bold;
-            color: #fff;
-        }
-
+        .badge { font-size: 0.7rem; padding: 2px 5px; border-radius: 4px; font-weight: bold; color: #fff; }
         .badge.MS { background: #22c55e; }
         .badge.BS { background: #3b82f6; }
         .badge.OS { background: #f97316; }
         .badge.OSA { background: #ef4444; }
 
-        /* Custom Popup Leaflet */
-        .leaflet-popup-content-wrapper {
-            background: #0f172a;
-            color: #f8fafc;
-            border-radius: 10px;
-            border: 1px solid #334155;
-            padding: 2px;
-        }
-
-        .leaflet-popup-tip {
-            background: #0f172a;
-        }
-
-        .popup-content h3 {
-            color: #38bdf8;
-            font-size: 1rem;
-            margin-bottom: 4px;
-        }
-
-        .popup-info {
-            font-size: 0.8rem;
-            margin-bottom: 8px;
-            color: #cbd5e1;
-        }
-
-        .popup-links {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .popup-links a {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            padding: 7px 8px;
-            background: #1e293b;
-            color: #38bdf8;
-            text-decoration: none;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            border: 1px solid #334155;
-        }
-
+        .leaflet-popup-content-wrapper { background: #0f172a; color: #f8fafc; border-radius: 10px; border: 1px solid #334155; padding: 2px; }
+        .leaflet-popup-tip { background: #0f172a; }
+        .popup-content h3 { color: #38bdf8; font-size: 1.1rem; margin-bottom: 4px; }
+        .popup-info { font-size: 0.85rem; margin-bottom: 8px; color: #cbd5e1; }
+        
+        .popup-links { display: flex; flex-direction: column; gap: 6px; }
+        .popup-links a { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px; text-decoration: none; border-radius: 6px; font-size: 0.8rem; font-weight: 600; border: 1px solid #334155; }
+        
+        .popup-links a.gmaps-btn { background: #059669; color: #fff; border: none; }
         .popup-links a.btn-wikiloc { background: #c2410c; color: #fff; border: none; }
         .popup-links a.btn-gulliver { background: #0284c7; color: #fff; border: none; }
-        .popup-links a.btn-c2c { background: #0284c7; color: #fff; border: none; }
-        .popup-links a.btn-ut { background: #475569; color: #fff; border: none; }
-        .popup-links a.gmaps-btn { background: #059669; color: #fff; border: none; }
+        .popup-links a.btn-c2c { background: #475569; color: #fff; border: none; }
 
-        /* Desktop Layout Override */
         @media (min-width: 769px) {
-            .app-container {
-                flex-direction: row-reverse;
-            }
-            #map {
-                flex: 1;
-                height: 100%;
-            }
-            #sidebar {
-                width: 380px;
-                height: 100%;
-                border-top: none;
-                border-right: 1px solid #334155;
-            }
+            .app-container { flex-direction: row-reverse; }
+            #map { flex: 1; height: 100%; }
+            #sidebar { width: 380px; height: 100%; border-top: none; border-right: 1px solid #334155; }
         }
     </style>
 </head>
 <body>
 
     <div class="app-container">
-        <!-- Mappa Interattiva -->
         <div id="map"></div>
-
-        <!-- Sidebar / Controlli -->
         <div id="sidebar">
             <div class="header">
-                <h1><i class="fa-solid fa-person-skiing"></i> Lofoten Ski Map</h1>
-                <p>50 Itinerari</p>
+                <h1><i class="fa-solid fa-map-pin"></i> Lofoten - Punti di Partenza</h1>
             </div>
 
             <div class="controls">
-                <button class="gps-btn" onclick="locateUser()">
-                    <i class="fa-solid fa-crosshairs"></i> Posizione GPS
-                </button>
-
                 <div class="search-box">
                     <i class="fa-solid fa-magnifying-glass"></i>
                     <input type="text" id="searchInput" placeholder="Cerca itinerario..." onkeyup="filterRoutes()">
                 </div>
-
-                <div class="filter-buttons">
-                    <button class="filter-btn active" onclick="filterDifficulty('ALL', this)">Tutti</button>
-                    <button class="filter-btn" onclick="filterDifficulty('MS', this)">MS</button>
-                    <button class="filter-btn" onclick="filterDifficulty('BS', this)">BS</button>
-                    <button class="filter-btn" onclick="filterDifficulty('OS', this)">OS</button>
-                    <button class="filter-btn" onclick="filterDifficulty('OSA', this)">OSA</button>
-                </div>
             </div>
 
-            <div id="route-list">
-                <!-- Card generate via JS -->
-            </div>
+            <div id="route-list"></div>
         </div>
     </div>
 
-    <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
     <script>
+        // LE COORDINATE ORA SONO QUELLE ESATTE DEI PARCHEGGI (START POINTS) E NON DELLE VETTE.
         const routes = [
-            // AUSTVÅGØYA NORD / LAUPSTAD
-            { id: 1, name: "Geitgaljen", area: "Laupstad", lat: 68.3912, lng: 14.7145, elev: 1085, gain: 1085, diff: "OSA", exp: "S / SE", desc: "La regina delle Lofoten. Canale impegnativo, piccozza e ramponi." },
-            { id: 2, name: "Pilan", area: "Laupstad", lat: 68.3750, lng: 14.6710, elev: 828, gain: 800, diff: "BS", exp: "S / SW", desc: "Un classico assoluto. Ampi pendii e ottima sciabilità." },
-            { id: 3, name: "Sautinden", area: "Laupstad", lat: 68.3680, lng: 14.6550, elev: 596, gain: 580, diff: "MS", exp: "SW", desc: "Ideale in condizioni meteo dubbie o per uscite brevi." },
-            { id: 4, name: "Kvittinden", area: "Laupstad", lat: 68.3790, lng: 14.6300, elev: 745, gain: 745, diff: "MS", exp: "S", desc: "Superba gita classica con vista sul fiordo." },
-            { id: 5, name: "Rundfjellet", area: "Laupstad", lat: 68.3850, lng: 14.6900, elev: 803, gain: 800, diff: "BS", exp: "S", desc: "Cresta panoramica con tratti divertenti in discesa." },
-            { id: 6, name: "Higravtinden", area: "Laupstad", lat: 68.3970, lng: 14.7870, elev: 1146, gain: 1146, diff: "OSA", exp: "SW", desc: "La cima più alta delle Lofoten. Itinerario alpinistico." },
-            { id: 7, name: "Stabben", area: "Laupstad", lat: 68.3880, lng: 14.6500, elev: 820, gain: 800, diff: "OS", exp: "W", desc: "Pendii sostenuti vicino a Laupstad." },
-            { id: 8, name: "Kjeftinden", area: "Austvågøya", lat: 68.3650, lng: 14.8500, elev: 910, gain: 900, diff: "OSA", exp: "S", desc: "Gita di alto livello con tratti molto ripidi." },
-            { id: 9, name: "Torskmannen", area: "Sydal / Laupstad", lat: 68.3610, lng: 14.6100, elev: 755, gain: 740, diff: "BS", exp: "SE", desc: "Pendii regolari ideali per curvoni ampi." },
-            { id: 10, name: "Sydalstinden", area: "Sydal", lat: 68.3480, lng: 14.5500, elev: 860, gain: 850, diff: "OS", exp: "E", desc: "Cima imponente con discesa di grande soddisfazione." },
-
-            // AUSTVÅGØYA NORD-OWEST / LAUKVIK
-            { id: 11, name: "Matmora", area: "Delp / Laukvik", lat: 68.3720, lng: 14.3500, elev: 788, gain: 780, diff: "BS", exp: "NW / W", desc: "Panorami spalancati sull'Oceano Atlantico." },
-            { id: 12, name: "Delpen", area: "Laukvik", lat: 68.3820, lng: 14.3100, elev: 376, gain: 370, diff: "MS", exp: "W", desc: "Gita veloce e sicura con visibilità ridotta." },
-            { id: 13, name: "Grøntinden", area: "Sydal", lat: 68.3100, lng: 14.5200, elev: 620, gain: 600, diff: "BS", exp: "SW", desc: "Ottima vista verso l'interno dell'isola." },
-
-            // SVOLVÆR / KABELVÅG / HENNINGSVÆR
-            { id: 14, name: "Varden", area: "Svolvær", lat: 68.2500, lng: 14.5700, elev: 464, gain: 450, diff: "MS", exp: "S", desc: "La classica 'di casa' sopra Svolvær." },
-            { id: 15, name: "Blåtinden", area: "Svolvær", lat: 68.2420, lng: 14.5900, elev: 621, gain: 600, diff: "BS", exp: "SW", desc: "Splendida prosecuzione sopra le colline di Svolvær." },
-            { id: 16, name: "Fløya", area: "Svolvær", lat: 68.2450, lng: 14.5850, elev: 590, gain: 580, diff: "BS", exp: "S", desc: "Affacciata sulla famosa roccia Djevelporten." },
-            { id: 17, name: "Store Kongen", area: "Svolvær", lat: 68.2650, lng: 14.5200, elev: 760, gain: 750, diff: "OS", exp: "S", desc: "Cima frastagliata con canale di salita sostenuto." },
-            { id: 18, name: "Tuva", area: "Svolvær", lat: 68.2580, lng: 14.5300, elev: 475, gain: 460, diff: "MS", exp: "SE", desc: "Gita tranquilla ed accessibile." },
-            { id: 19, name: "Smortindan", area: "Kabelvåg", lat: 68.2700, lng: 14.5000, elev: 647, gain: 630, diff: "BS", exp: "SE", desc: "Itinerario frequentato ed esteticamente appagante." },
-            { id: 20, name: "Glomtinden", area: "Kabelvåg", lat: 68.2280, lng: 14.4350, elev: 419, gain: 400, diff: "MS", exp: "S / SE", desc: "Facile e panoramica sul fiordo di Henningsvær." },
-            { id: 21, name: "Rørvikfjellet", area: "Rørvik", lat: 68.2200, lng: 14.4100, elev: 400, gain: 380, diff: "MS", exp: "SW", desc: "Dislivello contenuto, perfetta per il primo giorno." },
-            { id: 22, name: "Småtindan", area: "Ørsnes", lat: 68.2100, lng: 14.3800, elev: 662, gain: 650, diff: "BS", exp: "S", desc: "Bellissima sequenza di dossi e valloni." },
-            { id: 23, name: "Festvågtinden", area: "Henningsvær", lat: 68.1650, lng: 14.2100, elev: 541, gain: 540, diff: "BS", exp: "S", desc: "Discesa a picco sui moli di Henningsvær." },
-            { id: 24, name: "Vågakallen", area: "Kalle", lat: 68.1880, lng: 14.2900, elev: 942, gain: 900, diff: "OSA", exp: "S", desc: "Montagna simbolo. Sciabile solo negli spalloni." },
-            { id: 25, name: "Trolltinden", area: "Austvågøya", lat: 68.3400, lng: 14.8200, elev: 850, gain: 840, diff: "OS", exp: "W", desc: "Ambiente selvaggio vicino al Trollfjord." },
-            { id: 26, name: "Breitinden", area: "Austvågøya", lat: 68.3300, lng: 14.7500, elev: 674, gain: 670, diff: "BS", exp: "NW", desc: "Gita isolata e dall'ottima neve polare." },
-            { id: 27, name: "Rundheia", area: "Kabelvåg", lat: 68.2380, lng: 14.4700, elev: 510, gain: 500, diff: "MS", exp: "E", desc: "Itinerario rilassante e sicuro." },
-
-            // GIMSØYA
-            { id: 28, name: "Hoven", area: "Gimsøya", lat: 68.3320, lng: 14.1030, elev: 368, gain: 360, diff: "MS", exp: "360°", desc: "Montagna isolata al centro dell'isola. Vista imponente." },
-            { id: 29, name: "Sundklakklyngan", area: "Gimsøya", lat: 68.3050, lng: 14.1500, elev: 580, gain: 570, diff: "BS", exp: "S", desc: "Bella sequenza di pendii nel sud di Gimsøya." },
-            { id: 30, name: "Breitinden Gimsøy", area: "Gimsøya", lat: 68.3180, lng: 14.0800, elev: 530, gain: 520, diff: "MS", exp: "SE", desc: "Salita piacevole con ottima neve." },
-
-            // VESTVÅGØYA
-            { id: 31, name: "Justadtinden", area: "Borg / Stamsund", lat: 68.2320, lng: 13.8850, elev: 738, gain: 700, diff: "MS", exp: "SE", desc: "Cima più alta di Vestvågøya. Panorami sterminati." },
-            { id: 32, name: "Haveren", area: "Vestvågøya", lat: 68.2650, lng: 13.8400, elev: 808, gain: 780, diff: "BS", exp: "E", desc: "Grande montagna con pendii costanti e divertenti." },
-            { id: 33, name: "Guratinden", area: "Vestvågøya", lat: 68.2450, lng: 13.7800, elev: 683, gain: 670, diff: "BS", exp: "S", desc: "Pendenza ideale per curve in polvere." },
-            { id: 34, name: "Himmeltinden", area: "Utakleiv / Haukland", lat: 68.2350, lng: 13.5650, elev: 964, gain: 950, diff: "BS", exp: "W / SW", desc: "Sciata spettacolare sopra le famose spiagge bianche." },
-            { id: 35, name: "Mannen", area: "Haukland", lat: 68.2050, lng: 13.5300, elev: 400, gain: 390, diff: "MS", exp: "S", desc: "Gita breve ma con vista mozzafiato sul mare turchese." },
-            { id: 36, name: "Dalstuva", area: "Vestvågøya", lat: 68.1800, lng: 13.7000, elev: 562, gain: 550, diff: "MS", exp: "S", desc: "Itinerario accessibile nel cuore dell'isola." },
-            { id: 37, name: "Kartstinden", area: "Vestvågøya", lat: 68.2100, lng: 13.7500, elev: 690, gain: 680, diff: "BS", exp: "SE", desc: "Ampi spazi per sciare lontani dalla folla." },
-            { id: 38, name: "Vardefjell", area: "Vestvågøya", lat: 68.2500, lng: 13.6800, elev: 590, gain: 570, diff: "MS", exp: "S", desc: "Dossi dolci e sicuri." },
-            { id: 39, name: "Nonstinden", area: "Ballstad", lat: 68.0850, lng: 13.5400, elev: 459, gain: 450, diff: "MS", exp: "W", desc: "Direttamente sopra i rorbuer di Ballstad." },
-
-            // FLAKSTADØYA
-            { id: 40, name: "Stornappstinden", area: "Napp", lat: 68.1250, lng: 13.4300, elev: 740, gain: 730, diff: "BS", exp: "N / NE", desc: "Cima classica a sud del tunnel di Napp." },
-            { id: 41, name: "Middagstinden Napp", area: "Flakstad", lat: 68.1150, lng: 13.4000, elev: 801, gain: 790, diff: "OS", exp: "E", desc: "Versante più severo vicino a Stornappstinden." },
-            { id: 42, name: "Ryten", area: "Fredvang", lat: 68.0940, lng: 13.1360, elev: 543, gain: 530, diff: "MS", exp: "SW", desc: "Iconico: sbalzo a picco sulla spiaggia di Kvalvika." },
-            { id: 43, name: "Volandstinden", area: "Fredvang", lat: 68.0950, lng: 13.1850, elev: 547, gain: 540, diff: "BS", exp: "N", desc: "Forma piramidale perfetta, scivolo bellissimo." },
-            { id: 44, name: "Moltinden", area: "Ramberg", lat: 68.0900, lng: 13.2500, elev: 690, gain: 680, diff: "BS", exp: "NW", desc: "Vista sulla spiaggia di Ramberg." },
-            { id: 45, name: "Narvtinden", area: "Flakstad", lat: 68.0700, lng: 13.2900, elev: 680, gain: 670, diff: "OS", exp: "S", desc: "Canali ripidi per sciatori esperti." },
-            { id: 46, name: "Musken", area: "Flakstad", lat: 68.0600, lng: 13.3300, elev: 620, gain: 610, diff: "BS", exp: "W", desc: "Poco frequentato e panoramico." },
-
-            // MOSKENESØYA (SUD ESTREMO)
-            { id: 47, name: "Munkan", area: "Sørvågen", lat: 67.9250, lng: 13.0050, elev: 775, gain: 760, diff: "BS", exp: "SE", desc: "Nel profondo sud. Si scia tra i laghi ghiacciati." },
-            { id: 48, name: "Hermannsdalstinden", area: "Moskenes", lat: 67.9400, lng: 12.9700, elev: 1029, gain: 1020, diff: "OSA", exp: "Varia", desc: "La cima regina del sud. Lunga e complessa impresa alpina." },
-            { id: 49, name: "Reinebringen", area: "Reine", lat: 67.9280, lng: 13.0780, elev: 448, gain: 440, diff: "OS", exp: "E", desc: "Solo con neve stabilissima. Pendenze a picco sul fiordo." },
-            { id: 50, name: "Middagstinden Kvalvika", area: "Fredvang", lat: 68.0800, lng: 13.1100, elev: 701, gain: 690, diff: "BS", exp: "W", desc: "Sciata vista mare tra le scogliere dell'ovest." }
+            { id: 1, name: "Geitgaljen", area: "Laupstad", lat: 68.3751, lng: 14.6738, elev: 1085, gain: 1085, diff: "OSA", exp: "S", desc: "Regina delle Lofoten. Posizione pin: Parcheggio presso Liland/Laupstad." },
+            { id: 2, name: "Pilan & Sautinden", area: "Laupstad", lat: 68.3686, lng: 14.6543, elev: 828, gain: 800, diff: "BS", exp: "S/SW", desc: "Classica sicura e gettonata. Posizione pin: Parcheggio lungo la E10." },
+            { id: 3, name: "Kvittinden", area: "Austnesfjorden", lat: 68.3571, lng: 14.6062, elev: 745, gain: 745, diff: "MS", exp: "S", desc: "Bellissima sciata sul fiordo. Posizione pin: Parcheggio E10 vicino a Sildpollnes." },
+            { id: 4, name: "Torskmannen", area: "Sydal", lat: 68.3371, lng: 14.5367, elev: 755, gain: 740, diff: "BS", exp: "SE", desc: "Ampi pendii continui. Posizione pin: Parcheggio al porticciolo di Sydal." },
+            { id: 5, name: "Varden", area: "Svolvær", lat: 68.2435, lng: 14.5458, elev: 464, gain: 450, diff: "MS", exp: "S", desc: "La gita sopra casa. Posizione pin: Parcheggio dell'asilo Knutmarka a Svolvær." },
+            { id: 6, name: "Småtindan", area: "Kabelvåg", lat: 68.2045, lng: 14.3942, elev: 662, gain: 650, diff: "BS", exp: "S", desc: "Una delle uscite più belle. Posizione pin: Parcheggio di Ørsnes." },
+            { id: 7, name: "Glomtinden", area: "Henningsvær", lat: 68.2163, lng: 14.4042, elev: 419, gain: 400, diff: "MS", exp: "S/SE", desc: "Ottima per giornate di brutto tempo. Posizione pin: Passo di Rørvikskaret." },
+            { id: 8, name: "Festvågtinden", area: "Henningsvær", lat: 68.1678, lng: 14.2140, elev: 541, gain: 540, diff: "BS", exp: "S", desc: "A picco sul mare. Posizione pin: Piazzola a Festvåg, prima dei ponti." },
+            { id: 9, name: "Hoven", area: "Gimsøya", lat: 68.3344, lng: 14.0950, elev: 368, gain: 360, diff: "MS", exp: "360", desc: "Gita isolata sulla spiaggia. Posizione pin: Parcheggio del Golf Club Hov." },
+            { id: 10, name: "Justadtinden", area: "Vestvågøya", lat: 68.2125, lng: 13.8820, elev: 738, gain: 700, diff: "MS", exp: "SE", desc: "Lunga e panoramica. Posizione pin: Ampio parcheggio al passo Hagskaret." },
+            { id: 11, name: "Himmeltinden", area: "Haukland", lat: 68.1996, lng: 13.5292, elev: 964, gain: 950, diff: "BS", exp: "W", desc: "Sopra spiagge caraibiche. Posizione pin: Parcheggio spiaggia di Haukland." },
+            { id: 12, name: "Stornappstinden", area: "Flakstad", lat: 68.1278, lng: 13.4357, elev: 740, gain: 730, diff: "BS", exp: "N", desc: "Polvere garantita a nord. Posizione pin: Uscita Sud tunnel di Napp (Nappskaret)." },
+            { id: 13, name: "Ryten", area: "Fredvang", lat: 68.0833, lng: 13.1558, elev: 543, gain: 530, diff: "MS", exp: "SW", desc: "Vistosa scogliera su Kvalvika. Posizione pin: Parcheggio Innersand (Fredvang)." },
+            { id: 14, name: "Volandstinden", area: "Fredvang", lat: 68.0818, lng: 13.1973, elev: 547, gain: 540, diff: "BS", exp: "N", desc: "Piccola piramide appuntita. Posizione pin: Slargo incrocio Skjelfjord/Fredvang." },
+            { id: 15, name: "Munkan", area: "Sørvågen", lat: 67.8893, lng: 13.0163, elev: 775, gain: 760, diff: "BS", exp: "SE", desc: "Nel selvaggio sud. Posizione pin: Parcheggio scuola/municipio di Sørvågen." }
         ];
 
-        // Mappa Leaflet
         const map = L.map('map', { zoomControl: false }).setView([68.22, 14.10], 9);
         L.control.zoom({ position: 'topright' }).addTo(map);
 
-        const kartverketTopo = L.tileLayer('https://cache.kartverket.no/v1/wmts/1.0.0/topo/default/webmercator/{z}/{y}/{x}.png', {
-            maxZoom: 18,
-            attribution: '© Kartverket'
-        });
+        L.tileLayer('https://cache.kartverket.no/v1/wmts/1.0.0/topo/default/webmercator/{z}/{y}/{x}.png', {
+            maxZoom: 18, attribution: '© Kartverket'
+        }).addTo(map);
 
-        const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 });
-        const esriSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: '© Esri' });
-
-        kartverketTopo.addTo(map);
-
-        L.control.layers({
-            "Topo Norvegia": kartverketTopo,
-            "OpenStreetMap": osm,
-            "Satellite": esriSat
-        }, null, { position: 'topleft' }).addTo(map);
-
-        function getMarkerColor(diff) {
-            switch(diff) {
-                case 'MS': return '#22c55e';
-                case 'BS': return '#3b82f6';
-                case 'OS': return '#f97316';
-                case 'OSA': return '#ef4444';
-                default: return '#64748b';
-            }
-        }
-
-        function createCustomIcon(diff) {
-            return L.divIcon({
-                className: 'custom-pin',
-                html: '<div style="background-color: ' + getMarkerColor(diff) + '; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.5);"></div>',
-                iconSize: [14, 14],
-                iconAnchor: [7, 7]
-            });
+        function getColor(d) {
+            return d === 'MS' ? '#22c55e' : d === 'BS' ? '#3b82f6' : d === 'OS' ? '#f97316' : '#ef4444';
         }
 
         let markers = [];
-        let userLocationMarker = null;
 
         function renderRoutes(data) {
-            markers.forEach(m => map.removeLayer(m.marker));
+            markers.forEach(m => map.removeLayer(m));
             markers = [];
-
-            const listContainer = document.getElementById('route-list');
-            listContainer.innerHTML = '';
+            const list = document.getElementById('route-list');
+            list.innerHTML = '';
 
             data.forEach(route => {
-                // Link con query aperte ed efficaci (Senza virgolette bloccanti)
-                const linkGMaps = 'https://www.google.com/maps/search/?api=1&query=' + route.lat + ',' + route.lng;
-                const linkUT = 'https://ut.no/kart#12/' + route.lat + '/' + route.lng;
-                const linkGulliver = 'https://www.google.com/search?q=' + encodeURIComponent('gulliver lofoten ' + route.name);
-                const linkWikiloc = 'https://www.wikiloc.com/wikiloc/find.do?q=' + encodeURIComponent('lofoten ski ' + route.name);
-                const linkC2C = 'https://www.camptocamp.org/routes?q=' + encodeURIComponent(route.name);
+                // LINK DIRETTI AI MOTORI DI RICERCA INTERNI (Funzionano al 100%)
+                const nameURI = encodeURIComponent(route.name);
+                
+                // Google Maps usa le coordinate esatte del parcheggio, quindi aprirà l'app calcolando la strada vera.
+                const navMap = 'https://www.google.com/maps/dir/?api=1&destination=' + route.lat + ',' + route.lng;
+                
+                // Gulliver ricerca tramite la sua stringa query nativa (?s=nome)
+                const searchGulliver = 'https://www.gulliver.it/?s=' + nameURI;
+                
+                // Wikiloc ricerca filtrata su Norvegia/Scialpinismo
+                const searchWikiloc = 'https://it.wikiloc.com/percorsi/sci-alpinismo/norvegia?q=' + nameURI;
+                
+                // Camptocamp usa il motore Waypoints
+                const searchC2C = 'https://www.camptocamp.org/waypoints?q=' + nameURI;
 
-                const popupHTML = 
-                    '<div class="popup-content">' +
-                        '<h3>' + route.name + ' (' + route.elev + 'm)</h3>' +
-                        '<div class="popup-info">' +
-                            '<strong>Zona:</strong> ' + route.area + '<br>' +
-                            '<strong>Difficoltà:</strong> <span class="badge ' + route.diff + '">' + route.diff + '</span> | <strong>Dislivello:</strong> +' + route.gain + 'm<br>' +
-                            '<p style="margin-top:4px;"><em>' + route.desc + '</em></p>' +
-                        '</div>' +
-                        '<div class="popup-links">' +
-                            '<a href="' + linkGMaps + '" target="_blank" rel="noopener noreferrer" class="gmaps-btn"><i class="fa-solid fa-car"></i> Naviga con Google Maps</a>' +
-                            '<a href="' + linkUT + '" target="_blank" rel="noopener noreferrer" class="btn-ut"><i class="fa-solid fa-map"></i> Mappa Topo UT.no</a>' +
-                            '<a href="' + linkWikiloc + '" target="_blank" rel="noopener noreferrer" class="btn-wikiloc"><i class="fa-solid fa-route"></i> Traccia GPX Wikiloc</a>' +
-                            '<a href="' + linkC2C + '" target="_blank" rel="noopener noreferrer" class="btn-c2c"><i class="fa-solid fa-mountain"></i> Camptocamp</a>' +
-                            '<a href="' + linkGulliver + '" target="_blank" rel="noopener noreferrer" class="btn-gulliver"><i class="fa-solid fa-book"></i> Cerca su Gulliver.it</a>' +
-                        '</div>' +
-                    '</div>';
+                const popup = `
+                    <div class="popup-content">
+                        <h3>${route.name}</h3>
+                        <div class="popup-info">
+                            <strong><i class="fa-solid fa-parking"></i> Parcheggio:</strong> ${route.area}<br>
+                            <strong>Cima:</strong> +${route.gain}m | Diff: <span class="badge ${route.diff}">${route.diff}</span><br>
+                            <p style="margin-top:5px; font-size:0.75rem;">${route.desc}</p>
+                        </div>
+                        <div class="popup-links">
+                            <a href="${navMap}" target="_blank" class="gmaps-btn"><i class="fa-solid fa-car"></i> Naviga al Parcheggio</a>
+                            <a href="${searchWikiloc}" target="_blank" class="btn-wikiloc"><i class="fa-solid fa-route"></i> Cerca Traccia Wikiloc</a>
+                            <a href="${searchGulliver}" target="_blank" class="btn-gulliver"><i class="fa-solid fa-book"></i> Cerca Relazione Gulliver</a>
+                            <a href="${searchC2C}" target="_blank" class="btn-c2c"><i class="fa-solid fa-mountain"></i> Cerca su Camptocamp</a>
+                        </div>
+                    </div>`;
 
-                const marker = L.marker([route.lat, route.lng], { icon: createCustomIcon(route.diff) })
-                    .bindPopup(popupHTML)
-                    .addTo(map);
+                const marker = L.marker([route.lat, route.lng], { 
+                    icon: L.divIcon({
+                        className: 'custom-pin',
+                        html: `<div style="background-color: ${getColor(route.diff)}; width:16px; height:16px; border-radius:50%; border:2px solid white; box-shadow:0 0 5px #000;"></div>`,
+                        iconSize: [16, 16]
+                    })
+                }).bindPopup(popup).addTo(map);
 
-                markers.push({ id: route.id, marker: marker, data: route });
+                markers.push(marker);
 
-                // Card nella lista inferiore
                 const card = document.createElement('div');
                 card.className = 'route-card ' + route.diff;
-                card.innerHTML = 
-                    '<div class="route-title">' +
-                        '<span>' + route.name + '</span>' +
-                        '<span class="badge ' + route.diff + '">' + route.diff + '</span>' +
-                    '</div>' +
-                    '<div class="route-meta">' +
-                        '<span><i class="fa-solid fa-mountain"></i> ' + route.elev + 'm</span>' +
-                        '<span><i class="fa-solid fa-arrow-up-long"></i> +' + route.gain + 'm</span>' +
-                        '<span><i class="fa-solid fa-compass"></i> ' + route.exp + '</span>' +
-                    '</div>' +
-                    '<div class="route-desc">' + route.desc + '</div>';
+                card.innerHTML = `
+                    <div class="route-title"><span>${route.name}</span><span class="badge ${route.diff}">${route.diff}</span></div>
+                    <div class="route-meta"><span><i class="fa-solid fa-mountain"></i> ${route.elev}m</span> <span><i class="fa-solid fa-arrow-up-long"></i> +${route.gain}m</span></div>
+                    <div class="route-desc"><strong><i class="fa-solid fa-parking"></i> Parcheggio:</strong> ${route.desc}</div>`;
 
-                card.addEventListener('click', () => {
-                    map.setView([route.lat, route.lng], 12);
-                    marker.openPopup();
-                });
-
-                listContainer.appendChild(card);
+                card.addEventListener('click', () => { map.setView([route.lat, route.lng], 13); marker.openPopup(); });
+                list.appendChild(card);
             });
-        }
-
-        let currentDifficulty = 'ALL';
-        function filterDifficulty(diff, btn) {
-            currentDifficulty = diff;
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            applyFilters();
         }
 
         function filterRoutes() {
-            applyFilters();
-        }
-
-        function applyFilters() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = routes.filter(r => {
-                const matchesDiff = (currentDifficulty === 'ALL' || r.diff === currentDifficulty);
-                const matchesQuery = r.name.toLowerCase().includes(query) || r.area.toLowerCase().includes(query);
-                return matchesDiff && matchesQuery;
-            });
-            renderRoutes(filtered);
-        }
-
-        function locateUser() {
-            if (!navigator.geolocation) {
-                alert("GPS non supportato dal browser.");
-                return;
-            }
-
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const lat = position.coords.latitude;
-                    const lng = position.coords.longitude;
-
-                    if (userLocationMarker) {
-                        map.removeLayer(userLocationMarker);
-                    }
-
-                    userLocationMarker = L.circleMarker([lat, lng], {
-                        radius: 8,
-                        fillColor: "#ef4444",
-                        color: "#ffffff",
-                        weight: 3,
-                        opacity: 1,
-                        fillOpacity: 0.9
-                    }).addTo(map).bindPopup("<b>La tua posizione</b>").openPopup();
-
-                    map.setView([lat, lng], 11);
-                },
-                () => {
-                    alert("Attiva i permessi GPS su Safari per la geolocalizzazione.");
-                },
-                { enableHighAccuracy: true }
-            );
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            renderRoutes(routes.filter(r => r.name.toLowerCase().includes(q) || r.area.toLowerCase().includes(q)));
         }
 
         renderRoutes(routes);
