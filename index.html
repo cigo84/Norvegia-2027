@@ -19,9 +19,17 @@
         .header h1 { font-size: 1.05rem; color: #38bdf8; display: flex; align-items: center; gap: 8px; }
         .header p { font-size: 0.75rem; color: #94a3b8; margin-top: 4px; }
         .controls { padding: 10px 15px; display: flex; flex-direction: column; gap: 8px; background: #0f172a; border-bottom: 1px solid #334155; }
+        
+        /* Stili Pulsante GPS e Filtri */
+        .gps-btn { background: #10b981; color: white; border: none; padding: 8px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.8rem; }
+        .filter-buttons { display: flex; gap: 4px; }
+        .filter-btn { flex: 1; padding: 6px 4px; font-size: 0.7rem; font-weight: 600; border-radius: 6px; border: none; cursor: pointer; background: #1e293b; color: #94a3b8; text-align: center; }
+        .filter-btn.active, .filter-btn:hover { background: #0284c7; color: #fff; }
+
         .search-box { position: relative; }
         .search-box input { width: 100%; padding: 8px 12px 8px 35px; border-radius: 8px; border: 1px solid #334155; background: #1e293b; color: #fff; font-size: 0.85rem; }
         .search-box i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #64748b; }
+        
         #route-list { flex: 1; overflow-y: auto; padding: 10px; -webkit-overflow-scrolling: touch; }
         .route-card { background: #1e293b; border-radius: 8px; padding: 12px; margin-bottom: 8px; cursor: pointer; border-left: 4px solid #cbd5e1; }
         .route-card.MS { border-left-color: #22c55e; }
@@ -31,11 +39,13 @@
         .route-title { font-weight: 700; font-size: 0.95rem; color: #f1f5f9; display: flex; justify-content: space-between; }
         .route-meta { display: flex; gap: 10px; font-size: 0.75rem; color: #94a3b8; margin-top: 5px; }
         .route-desc { font-size: 0.8rem; color: #cbd5e1; margin-top: 6px; line-height: 1.4; }
+        
         .badge { font-size: 0.7rem; padding: 2px 5px; border-radius: 4px; font-weight: bold; color: #fff; }
         .badge.MS { background: #22c55e; }
         .badge.BS { background: #3b82f6; }
         .badge.OS { background: #f97316; }
         .badge.OSA { background: #ef4444; }
+        
         .leaflet-popup-content-wrapper { background: #0f172a; color: #f8fafc; border-radius: 10px; border: 1px solid #334155; padding: 2px; }
         .leaflet-popup-tip { background: #0f172a; }
         .popup-content h3 { color: #38bdf8; font-size: 1.1rem; margin-bottom: 4px; }
@@ -45,6 +55,7 @@
         .popup-links a.gmaps-btn { background: #059669; color: #fff; border: none; }
         .popup-links a.btn-review { background: #4285F4; color: #fff; border: none; }
         .popup-links a.btn-varsom { background: #ea580c; color: #fff; border: none; }
+        
         @media (min-width: 769px) { .app-container { flex-direction: row-reverse; } #map { flex: 1; height: 100%; } #sidebar { width: 380px; height: 100%; border-top: none; border-right: 1px solid #334155; } }
     </style>
 </head>
@@ -57,19 +68,30 @@
                 <h1><i class="fa-solid fa-book"></i> Magic Islands Ski Map</h1>
                 <p>Tutti i 52 itinerari del libro. Pin sui parcheggi reali.</p>
             </div>
+            
             <div class="controls">
+                <button class="gps-btn" onclick="locateUser()">
+                    <i class="fa-solid fa-crosshairs"></i> Posizione GPS
+                </button>
                 <div class="search-box">
                     <i class="fa-solid fa-magnifying-glass"></i>
                     <input type="text" id="searchInput" placeholder="Cerca montagna o area..." onkeyup="filterRoutes()">
                 </div>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" onclick="filterDifficulty('ALL', this)">Tutti</button>
+                    <button class="filter-btn" onclick="filterDifficulty('MS', this)">MS</button>
+                    <button class="filter-btn" onclick="filterDifficulty('BS', this)">BS</button>
+                    <button class="filter-btn" onclick="filterDifficulty('OS', this)">OS</button>
+                    <button class="filter-btn" onclick="filterDifficulty('OSA', this)">OSA</button>
+                </div>
             </div>
+            
             <div id="route-list"></div>
         </div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // Database completo estratto dall'indice del libro "Skiing in the Magic Islands"
         const routes = [
             // MOSKENESØYA & FLAKSTADØYA
             { name: "Naveren", area: "Flakstadøya", lat: 68.046, lng: 13.295, elev: 695, diff: "BS", desc: "Vetta a sud dell'isola di Flakstad." },
@@ -143,6 +165,32 @@
         }
 
         let markers = [];
+        let userLocationMarker = null;
+
+        // Funzione Geolocation (GPS)
+        function locateUser() {
+            if (!navigator.geolocation) {
+                alert("GPS non supportato dal browser.");
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    if (userLocationMarker) {
+                        map.removeLayer(userLocationMarker);
+                    }
+                    userLocationMarker = L.circleMarker([lat, lng], {
+                        radius: 8, fillColor: "#ef4444", color: "#ffffff", weight: 3, opacity: 1, fillOpacity: 0.9
+                    }).addTo(map).bindPopup("<b>La tua posizione</b>").openPopup();
+                    map.setView([lat, lng], 11);
+                },
+                () => {
+                    alert("Attiva i permessi GPS su Safari per la geolocalizzazione.");
+                },
+                { enableHighAccuracy: true }
+            );
+        }
 
         function renderRoutes(data) {
             markers.forEach(m => map.removeLayer(m));
@@ -191,9 +239,26 @@
             });
         }
 
+        let currentDifficulty = 'ALL';
+        function filterDifficulty(diff, btn) {
+            currentDifficulty = diff;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            applyFilters();
+        }
+
         function filterRoutes() {
-            const q = document.getElementById('searchInput').value.toLowerCase();
-            renderRoutes(routes.filter(r => r.name.toLowerCase().includes(q) || r.area.toLowerCase().includes(q)));
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = routes.filter(r => {
+                const matchesDiff = (currentDifficulty === 'ALL' || r.diff === currentDifficulty);
+                const matchesQuery = r.name.toLowerCase().includes(query) || r.area.toLowerCase().includes(query);
+                return matchesDiff && matchesQuery;
+            });
+            renderRoutes(filtered);
         }
 
         renderRoutes(routes);
