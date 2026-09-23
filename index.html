@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Lofoten Ski Touring - Mappa Completa</title>
     
-    <!-- Leaflet CSS -->
+    <!-- Leaflet CSS & FontAwesome -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     
@@ -31,17 +31,15 @@
         .search-box i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #64748b; }
         
         #route-list { flex: 1; overflow-y: auto; padding: 10px; -webkit-overflow-scrolling: touch; }
-        .route-card { background: #1e293b; border-radius: 8px; padding: 10px; margin-bottom: 8px; cursor: pointer; border-left: 4px solid #cbd5e1; display: flex; gap: 10px; align-items: center; }
+        .route-card { background: #1e293b; border-radius: 8px; padding: 12px; margin-bottom: 8px; cursor: pointer; border-left: 4px solid #cbd5e1; }
         .route-card.MS { border-left-color: #22c55e; }
         .route-card.BS { border-left-color: #3b82f6; }
         .route-card.OS { border-left-color: #f97316; }
         .route-card.OSA { border-left-color: #ef4444; }
         
-        .card-thumb { width: 65px; height: 65px; border-radius: 6px; object-fit: cover; flex-shrink: 0; background: #334155; }
-        .card-content { flex: 1; min-width: 0; }
         .route-title { font-weight: 700; font-size: 0.9rem; color: #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
-        .route-meta { display: flex; gap: 8px; font-size: 0.72rem; color: #94a3b8; margin-top: 3px; }
-        .route-desc { font-size: 0.75rem; color: #cbd5e1; margin-top: 4px; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .route-meta { display: flex; gap: 10px; font-size: 0.72rem; color: #94a3b8; margin-top: 4px; }
+        .route-desc { font-size: 0.78rem; color: #cbd5e1; margin-top: 6px; line-height: 1.3; }
         
         .badge { font-size: 0.65rem; padding: 2px 5px; border-radius: 4px; font-weight: bold; color: #fff; }
         .badge.MS { background: #22c55e; }
@@ -51,12 +49,12 @@
         
         .leaflet-popup-content-wrapper { background: #0f172a; color: #f8fafc; border-radius: 10px; border: 1px solid #334155; padding: 2px; }
         .leaflet-popup-tip { background: #0f172a; }
-        .popup-img { width: 100%; height: 110px; object-fit: cover; border-radius: 6px; margin-bottom: 8px; background: #1e293b; }
         .popup-content h3 { color: #38bdf8; font-size: 1.05rem; margin-bottom: 4px; }
         .popup-info { font-size: 0.8rem; margin-bottom: 8px; color: #cbd5e1; }
         .popup-links { display: flex; flex-direction: column; gap: 6px; }
         .popup-links a { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 8px; text-decoration: none; border-radius: 6px; font-size: 0.8rem; font-weight: 600; border: 1px solid #334155; }
         .popup-links a.gmaps-btn { background: #059669; color: #fff; border: none; }
+        .popup-links a.btn-photo { background: #8b5cf6; color: #fff; border: none; }
         .popup-links a.btn-review { background: #0284c7; color: #fff; border: none; }
         .popup-links a.btn-varsom { background: #ea580c; color: #fff; border: none; }
         
@@ -70,7 +68,7 @@
         <div id="sidebar">
             <div class="header">
                 <h1><i class="fa-solid fa-book"></i> Magic Islands Ski Map</h1>
-                <p>Guida completa con foto, GPS e bollettino Varsom.</p>
+                <p>Mappa completa della guida cartacea. Pin sui parcheggi.</p>
             </div>
             
             <div class="controls">
@@ -96,74 +94,65 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        const imgBase = "https://images.unsplash.com/photo-";
-        const photos = {
-            lofoten1: imgBase + "1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80",
-            lofoten2: imgBase + "1517411032315-54ef2cb783bb?auto=format&fit=crop&w=600&q=80",
-            lofoten3: imgBase + "1464822759023-fed622ff2c3b?auto=format&fit=crop&w=600&q=80",
-            lofoten4: imgBase + "1486870591958-9b9d0d1dda99?auto=format&fit=crop&w=600&q=80",
-            lofoten5: imgBase + "1542601906990-b4d3fb778b09?auto=format&fit=crop&w=600&q=80"
-        };
-
         const routes = [
             // MOSKENESØYA & FLAKSTADØYA & VESTVÅGØYA
-            { name: "Naveren", area: "Flakstadøya", lat: 68.046, lng: 13.295, elev: 695, diff: "BS", desc: "Vetta a sud dell'isola di Flakstad.", img: photos.lofoten1 },
-            { name: "Ryten", area: "Fredvang", lat: 68.0833, lng: 13.1558, elev: 543, diff: "MS", desc: "Vistosa scogliera su Kvalvika. Parcheggio Innersand.", img: photos.lofoten2 },
-            { name: "Stornappstind", area: "Napp", lat: 68.1278, lng: 13.4357, elev: 740, diff: "BS", desc: "Sopra il tunnel di Napp. Neve polverosa a nord.", img: photos.lofoten3 },
-            { name: "Store Klauva", area: "Flakstad", lat: 68.106, lng: 13.385, elev: 775, diff: "BS", desc: "Adiacente allo Stornappstind.", img: photos.lofoten4 },
-            { name: "Himmeltind", area: "Haukland", lat: 68.1996, lng: 13.5292, elev: 964, diff: "BS", desc: "Sopra le spiagge bianche. Parcheggio Haukland.", img: photos.lofoten5 },
-            { name: "Limstrandstind & Rødrevheia", area: "Vestvågøya", lat: 68.232, lng: 13.805, elev: 650, diff: "MS", desc: "Gita panoramica e morbida.", img: photos.lofoten1 },
-            { name: "Haveren", area: "Vestvågøya", lat: 68.2650, lng: 13.8400, elev: 808, diff: "BS", desc: "Grande montagna, pendii costanti est.", img: photos.lofoten2 },
-            { name: "Hellostinden", area: "Vestvågøya", lat: 68.256, lng: 13.815, elev: 580, diff: "MS", desc: "Facile e panoramica, orientamento sud.", img: photos.lofoten3 },
-            { name: "Håtinden", area: "Vestvågøya", lat: 68.251, lng: 13.834, elev: 640, diff: "MS", desc: "Ottima vista verso l'oceano.", img: photos.lofoten4 },
-            { name: "Dalstuva", area: "Vestvågøya", lat: 68.1800, lng: 13.7000, elev: 562, diff: "MS", desc: "Accessibile nel cuore dell'isola.", img: photos.lofoten5 },
-            { name: "Skokkelvika Gullys", area: "Vestvågøya", lat: 68.195, lng: 13.715, elev: 500, diff: "OS", desc: "Canali interessanti verso nord.", img: photos.lofoten1 },
-            { name: "Justadtind", area: "Hagskaret", lat: 68.2125, lng: 13.8820, elev: 738, diff: "MS", desc: "Grande classica. Parcheggio passo Hagskaret.", img: photos.lofoten2 },
-            { name: "Kangerurtinden", area: "Vestvågøya", lat: 68.225, lng: 13.895, elev: 700, diff: "BS", desc: "Vetta secondaria vicina al Justadtind.", img: photos.lofoten3 },
-            { name: "Hoven", area: "Gimsøya", lat: 68.3344, lng: 14.0950, elev: 368, diff: "MS", desc: "Isolata con vista 360°. Parcheggio Golf Club Hov.", img: photos.lofoten4 },
-            { name: "The Ski Hills", area: "Gimsøya", lat: 68.315, lng: 14.120, elev: 400, diff: "MS", desc: "Dolci colline ottime per principianti.", img: photos.lofoten5 },
-            { name: "The East (Moskenes)", area: "Sørvågen", lat: 67.889, lng: 13.016, elev: 600, diff: "BS", desc: "Esplorazioni nel profondo sud estremo.", img: photos.lofoten1 },
+            { name: "Naveren", area: "Flakstadøya", lat: 68.046, lng: 13.295, elev: 695, diff: "BS", desc: "Vetta a sud dell'isola di Flakstad." },
+            { name: "Ryten", area: "Fredvang", lat: 68.0833, lng: 13.1558, elev: 543, diff: "MS", desc: "Vistosa scogliera su Kvalvika. Parcheggio Innersand." },
+            { name: "Stornappstind", area: "Napp", lat: 68.1278, lng: 13.4357, elev: 740, diff: "BS", desc: "Sopra il tunnel di Napp. Neve polverosa a nord." },
+            { name: "Store Klauva", area: "Flakstad", lat: 68.106, lng: 13.385, elev: 775, diff: "BS", desc: "Adiacente allo Stornappstind." },
+            { name: "Himmeltind", area: "Haukland", lat: 68.1996, lng: 13.5292, elev: 964, diff: "BS", desc: "Sopra le spiagge bianche. Parcheggio Haukland." },
+            { name: "Limstrandstind & Rødrevheia", area: "Vestvågøya", lat: 68.232, lng: 13.805, elev: 650, diff: "MS", desc: "Gita panoramica e morbida." },
+            { name: "Haveren", area: "Vestvågøya", lat: 68.2650, lng: 13.8400, elev: 808, diff: "BS", desc: "Grande montagna, pendii costanti est." },
+            { name: "Hellostinden", area: "Vestvågøya", lat: 68.256, lng: 13.815, elev: 580, diff: "MS", desc: "Facile e panoramica, orientamento sud." },
+            { name: "Håtinden", area: "Vestvågøya", lat: 68.251, lng: 13.834, elev: 640, diff: "MS", desc: "Ottima vista verso l'oceano." },
+            { name: "Dalstuva", area: "Vestvågøya", lat: 68.1800, lng: 13.7000, elev: 562, diff: "MS", desc: "Accessibile nel cuore dell'isola." },
+            { name: "Skokkelvika Gullys", area: "Vestvågøya", lat: 68.195, lng: 13.715, elev: 500, diff: "OS", desc: "Canali interessanti verso nord." },
+            { name: "Justadtind", area: "Hagskaret", lat: 68.2125, lng: 13.8820, elev: 738, diff: "MS", desc: "Grande classica. Parcheggio passo Hagskaret." },
+            { name: "Kangerurtinden", area: "Vestvågøya", lat: 68.225, lng: 13.895, elev: 700, diff: "BS", desc: "Vetta secondaria vicina al Justadtind." },
+            { name: "Hoven", area: "Gimsøya", lat: 68.3344, lng: 14.0950, elev: 368, diff: "MS", desc: "Isolata con vista 360°. Parcheggio Golf Club Hov." },
+            { name: "The Ski Hills", area: "Gimsøya", lat: 68.315, lng: 14.120, elev: 400, diff: "MS", desc: "Dolci colline ottime per principianti." },
+            { name: "The East (Moskenes)", area: "Sørvågen", lat: 67.889, lng: 13.016, elev: 600, diff: "BS", desc: "Esplorazioni nel profondo sud estremo." },
 
             // AUSTVÅGØYA
-            { name: "Sydalsfjellet", area: "Sydal", lat: 68.330, lng: 14.520, elev: 730, diff: "BS", desc: "Partenza dal porticciolo di Sydal.", img: photos.lofoten2 },
-            { name: "Kroktind", area: "Sydal", lat: 68.320, lng: 14.500, elev: 700, diff: "BS", desc: "Vetta panoramica sul fiordo.", img: photos.lofoten3 },
-            { name: "Kleppstadheia", area: "Kleppstad", lat: 68.256, lng: 14.280, elev: 500, diff: "MS", desc: "Bella vista verso Henningsvær.", img: photos.lofoten4 },
-            { name: "Glomtind", area: "Rørvikskaret", lat: 68.2163, lng: 14.4042, elev: 419, diff: "MS", desc: "Breve gita. Parcheggio al passo Rørvikskaret.", img: photos.lofoten5 },
-            { name: "Trolldalen Gully", area: "Kabelvåg", lat: 68.225, lng: 14.425, elev: 500, diff: "OS", desc: "Canale ripido e incassato.", img: photos.lofoten1 },
-            { name: "Presten Gully", area: "Henningsvær", lat: 68.167, lng: 14.214, elev: 400, diff: "OS", desc: "Canale a ridosso della famosa parete di arrampicata.", img: photos.lofoten2 },
-            { name: "Kvanndalstind", area: "Henningsvær", lat: 68.180, lng: 14.230, elev: 700, diff: "OS", desc: "Severo percorso alpinistico sopra Kalle.", img: photos.lofoten3 },
-            { name: "Varden - Olderdalen", area: "Svolvær", lat: 68.2435, lng: 14.5458, elev: 464, diff: "MS", desc: "La gita di casa da Svolvær. Parcheggio asilo Knutmarka.", img: photos.lofoten4 },
-            { name: "Stortind", area: "Svolvær", lat: 68.255, lng: 14.535, elev: 730, diff: "BS", desc: "Vetta principale dietro la città.", img: photos.lofoten5 },
-            { name: "Varden - East", area: "Svolvær", lat: 68.243, lng: 14.545, elev: 464, diff: "MS", desc: "Versante est del Varden.", img: photos.lofoten1 },
-            { name: "Spisstind", area: "Svolvær", lat: 68.260, lng: 14.550, elev: 650, diff: "BS", desc: "Punta affilata nel massiccio di Svolvær.", img: photos.lofoten2 },
-            { name: "Tuva", area: "Svolvær", lat: 68.2580, lng: 14.5300, elev: 475, diff: "MS", desc: "Gita tranquilla ed accessibile.", img: photos.lofoten3 },
-            { name: "Blåtind - Main Basin", area: "Svolvær", lat: 68.2420, lng: 14.5900, elev: 621, diff: "BS", desc: "Splendido anfiteatro nevoso.", img: photos.lofoten4 },
-            { name: "Blåtind - Frontside", area: "Svolvær", lat: 68.242, lng: 14.590, elev: 621, diff: "BS", desc: "Pendio frontale diretto, ben visibile.", img: photos.lofoten5 },
-            { name: "Jomfrudalen", area: "Austvågøya", lat: 68.270, lng: 14.580, elev: 500, diff: "MS", desc: "Vallone isolato, ottimo con neve sicura.", img: photos.lofoten1 },
-            { name: "Rundfjellet - Vaterfjorden", area: "Laupstad", lat: 68.3850, lng: 14.6900, elev: 803, diff: "BS", desc: "Salita classica dal fiordo.", img: photos.lofoten2 },
-            { name: "Rundfjellet - South Face", area: "Laupstad", lat: 68.385, lng: 14.690, elev: 803, diff: "BS", desc: "Pendio sud, si trasforma in fretta in primavera.", img: photos.lofoten3 },
-            { name: "Rundfjellet - Kudalen", area: "Laupstad", lat: 68.385, lng: 14.690, elev: 803, diff: "BS", desc: "Variante per la valle di Kudalen.", img: photos.lofoten4 },
-            { name: "Hellskarnuten", area: "Laupstad", lat: 68.380, lng: 14.680, elev: 750, diff: "BS", desc: "Vicino a Rundfjellet.", img: photos.lofoten5 },
-            { name: "Grønnfjellet - Stordalen", area: "Vestpollen", lat: 68.310, lng: 14.600, elev: 700, diff: "BS", desc: "Salita dalla valle di Stordalen.", img: photos.lofoten1 },
-            { name: "Grønnfjellet - Vestpollen", area: "Vestpollen", lat: 68.310, lng: 14.600, elev: 700, diff: "BS", desc: "Salita dal braccio del fiordo.", img: photos.lofoten2 },
-            { name: "Torskmannen", area: "Sydal", lat: 68.3371, lng: 14.5367, elev: 755, diff: "BS", desc: "Ampi pendii continui, ideale per grandi curve.", img: photos.lofoten3 },
-            { name: "Breitind", area: "Laupstad", lat: 68.350, lng: 14.620, elev: 700, diff: "BS", desc: "Vetta massiccia vicina a Torskmannen.", img: photos.lofoten4 },
-            { name: "Kistbergtind", area: "Laupstad", lat: 68.360, lng: 14.630, elev: 750, diff: "BS", desc: "Dossi e pendii regolari.", img: photos.lofoten5 },
-            { name: "Store Kvittind", area: "Austnesfjorden", lat: 68.3571, lng: 14.6062, elev: 745, diff: "MS", desc: "Parcheggio lungo la E10.", img: photos.lofoten1 },
-            { name: "Pilan", area: "Laupstad", lat: 68.3686, lng: 14.6543, elev: 828, diff: "BS", desc: "Un must delle Lofoten. Parcheggio sulla E10.", img: photos.lofoten2 },
-            { name: "Sautind", area: "Laupstad", lat: 68.3686, lng: 14.6543, elev: 596, diff: "MS", desc: "Anticima di Pilan, per uscite brevi.", img: photos.lofoten3 },
-            { name: "Matmora", area: "Delp", lat: 68.3720, lng: 14.3500, elev: 788, diff: "BS", desc: "A nord-ovest, vista infinita sull'Atlantico.", img: photos.lofoten4 },
-            { name: "Geitgallien", area: "Laupstad", lat: 68.3751, lng: 14.6738, elev: 1085, diff: "OSA", desc: "La regina assoluta. Richiede esperienza.", img: photos.lofoten5 },
-            { name: "Geitgallien - South Gully", area: "Laupstad", lat: 68.3751, lng: 14.6738, elev: 1085, diff: "OSA", desc: "Il ripido ed estetico canale sud.", img: photos.lofoten1 },
-            { name: "Trollsadelen", area: "Laupstad", lat: 68.380, lng: 14.700, elev: 800, diff: "OS", desc: "La sella dei Troll, pendii sostenuti.", img: photos.lofoten2 },
-            { name: "Langstrandstind", area: "Laupstad", lat: 68.390, lng: 14.710, elev: 900, diff: "OS", desc: "Montagna impegnativa a nord di Geitgaljen.", img: photos.lofoten3 },
+            { name: "Sydalsfjellet", area: "Sydal", lat: 68.330, lng: 14.520, elev: 730, diff: "BS", desc: "Partenza dal porticciolo di Sydal." },
+            { name: "Kroktind", area: "Sydal", lat: 68.320, lng: 14.500, elev: 700, diff: "BS", desc: "Vetta panoramica sul fiordo." },
+            { name: "Kleppstadheia", area: "Kleppstad", lat: 68.256, lng: 14.280, elev: 500, diff: "MS", desc: "Bella vista verso Henningsvær." },
+            { name: "Glomtind", area: "Rørvikskaret", lat: 68.2163, lng: 14.4042, elev: 419, diff: "MS", desc: "Breve gita. Parcheggio al passo Rørvikskaret." },
+            { name: "Trolldalen Gully", area: "Kabelvåg", lat: 68.225, lng: 14.425, elev: 500, diff: "OS", desc: "Canale ripido e incassato." },
+            { name: "Presten Gully", area: "Henningsvær", lat: 68.167, lng: 14.214, elev: 400, diff: "OS", desc: "Canale a ridosso della famosa parete di arrampicata." },
+            { name: "Kvanndalstind", area: "Henningsvær", lat: 68.180, lng: 14.230, elev: 700, diff: "OS", desc: "Severo percorso alpinistico sopra Kalle." },
+            { name: "Varden - Olderdalen", area: "Svolvær", lat: 68.2435, lng: 14.5458, elev: 464, diff: "MS", desc: "La gita di casa da Svolvær. Parcheggio asilo Knutmarka." },
+            { name: "Stortind", area: "Svolvær", lat: 68.255, lng: 14.535, elev: 730, diff: "BS", desc: "Vetta principale dietro la città." },
+            { name: "Varden - East", area: "Svolvær", lat: 68.243, lng: 14.545, elev: 464, diff: "MS", desc: "Versante est del Varden." },
+            { name: "Spisstind", area: "Svolvær", lat: 68.260, lng: 14.550, elev: 650, diff: "BS", desc: "Punta affilata nel massiccio di Svolvær." },
+            { name: "Tuva", area: "Svolvær", lat: 68.2580, lng: 14.5300, elev: 475, diff: "MS", desc: "Gita tranquilla ed accessibile." },
+            { name: "Blåtind - Main Basin", area: "Svolvær", lat: 68.2420, lng: 14.5900, elev: 621, diff: "BS", desc: "Splendido anfiteatro nevoso." },
+            { name: "Blåtind - Frontside", area: "Svolvær", lat: 68.242, lng: 14.590, elev: 621, diff: "BS", desc: "Pendio frontale diretto, ben visibile." },
+            { name: "Jomfrudalen", area: "Austvågøya", lat: 68.270, lng: 14.580, elev: 500, diff: "MS", desc: "Vallone isolato, ottimo con neve sicura." },
+            { name: "Rundfjellet - Vaterfjorden", area: "Laupstad", lat: 68.3850, lng: 14.6900, elev: 803, diff: "BS", desc: "Salita classica dal fiordo." },
+            { name: "Rundfjellet - South Face", area: "Laupstad", lat: 68.385, lng: 14.690, elev: 803, diff: "BS", desc: "Pendio sud, si trasforma in fretta in primavera." },
+            { name: "Rundfjellet - Kudalen", area: "Laupstad", lat: 68.385, lng: 14.690, elev: 803, diff: "BS", desc: "Variante per la valle di Kudalen." },
+            { name: "Hellskarnuten", area: "Laupstad", lat: 68.380, lng: 14.680, elev: 750, diff: "BS", desc: "Vicino a Rundfjellet." },
+            { name: "Grønnfjellet - Stordalen", area: "Vestpollen", lat: 68.310, lng: 14.600, elev: 700, diff: "BS", desc: "Salita dalla valle di Stordalen." },
+            { name: "Grønnfjellet - Vestpollen", area: "Vestpollen", lat: 68.310, lng: 14.600, elev: 700, diff: "BS", desc: "Salita dal braccio del fiordo." },
+            { name: "Torskmannen", area: "Sydal", lat: 68.3371, lng: 14.5367, elev: 755, diff: "BS", desc: "Ampi pendii continui, ideale per grandi curve." },
+            { name: "Breitind", area: "Laupstad", lat: 68.350, lng: 14.620, elev: 700, diff: "BS", desc: "Vetta massiccia vicina a Torskmannen." },
+            { name: "Kistbergtind", area: "Laupstad", lat: 68.360, lng: 14.630, elev: 750, diff: "BS", desc: "Dossi e pendii regolari." },
+            { name: "Store Kvittind", area: "Austnesfjorden", lat: 68.3571, lng: 14.6062, elev: 745, diff: "MS", desc: "Parcheggio lungo la E10." },
+            { name: "Pilan", area: "Laupstad", lat: 68.3686, lng: 14.6543, elev: 828, diff: "BS", desc: "Un must delle Lofoten. Parcheggio sulla E10." },
+            { name: "Sautind", area: "Laupstad", lat: 68.3686, lng: 14.6543, elev: 596, diff: "MS", desc: "Anticima di Pilan, per uscite brevi." },
+            { name: "Matmora", area: "Delp", lat: 68.3720, lng: 14.3500, elev: 788, diff: "BS", desc: "A nord-ovest, vista infinita sull'Atlantico." },
+            { name: "Geitgallien", area: "Laupstad", lat: 68.3751, lng: 14.6738, elev: 1085, diff: "OSA", desc: "La regina assoluta. Richiede esperienza." },
+            { name: "Geitgallien - South Gully", area: "Laupstad", lat: 68.3751, lng: 14.6738, elev: 1085, diff: "OSA", desc: "Il ripido ed estetico canale sud." },
+            { name: "Trollsadelen", area: "Laupstad", lat: 68.380, lng: 14.700, elev: 800, diff: "OS", desc: "La sella dei Troll, pendii sostenuti." },
+            { name: "Langstrandstind", area: "Laupstad", lat: 68.390, lng: 14.710, elev: 900, diff: "OS", desc: "Montagna impegnativa a nord di Geitgaljen." },
 
             // TROLLFJORDEN
-            { name: "Store Trolltind", area: "Trollfjorden (Solo Barca)", lat: 68.360, lng: 14.950, elev: 1000, diff: "OSA", desc: "Accesso in gommone/barca. Ambiente alpino severo.", img: photos.lofoten4 },
-            { name: "TM7", area: "Trollfjorden (Solo Barca)", lat: 68.365, lng: 14.960, elev: 800, diff: "OS", desc: "Accesso via mare. Pendii impressionanti.", img: photos.lofoten5 },
-            { name: "Trollrenna", area: "Trollfjorden (Solo Barca)", lat: 68.370, lng: 14.940, elev: 900, diff: "OSA", desc: "Il famoso e ripido canale dei Troll.", img: photos.lofoten1 },
-            { name: "North Gully", area: "Trollfjorden (Solo Barca)", lat: 68.375, lng: 14.950, elev: 800, diff: "OS", desc: "Canale sul versante nord del fiordo.", img: photos.lofoten2 },
-            { name: "Blåskavltinden", area: "Trollfjorden (Solo Barca)", lat: 68.380, lng: 14.970, elev: 1000, diff: "OSA", desc: "Spettacolare e remoto, spesso richiede ramponi.", img: photos.lofoten3 }
+            { name: "Store Trolltind", area: "Trollfjorden (Solo Barca)", lat: 68.360, lng: 14.950, elev: 1000, diff: "OSA", desc: "Accesso in gommone/barca. Ambiente alpino severo." },
+            { name: "TM7", area: "Trollfjorden (Solo Barca)", lat: 68.365, lng: 14.960, elev: 800, diff: "OS", desc: "Accesso via mare. Pendii impressionanti." },
+            { name: "Trollrenna", area: "Trollfjorden (Solo Barca)", lat: 68.370, lng: 14.940, elev: 900, diff: "OSA", desc: "Il famoso e ripido canale dei Troll." },
+            { name: "North Gully", area: "Trollfjorden (Solo Barca)", lat: 68.375, lng: 14.950, elev: 800, diff: "OS", desc: "Canale sul versante nord del fiordo." },
+            { name: "Blåskavltinden", area: "Trollfjorden (Solo Barca)", lat: 68.380, lng: 14.970, elev: 1000, diff: "OSA", desc: "Spettacolare e remoto, spesso richiede ramponi." }
         ];
 
         const map = L.map('map', { zoomControl: false }).setView([68.27, 14.20], 9);
@@ -198,7 +187,7 @@
                     map.setView([lat, lng], 11);
                 },
                 (err) => {
-                    alert("Impossibile recuperare la posizione. Verificare che i servizi di localizzazione siano attivi.");
+                    alert("Impossibile recuperare la posizione GPS.");
                 },
                 { enableHighAccuracy: true }
             );
@@ -213,13 +202,11 @@
             data.forEach(route => {
                 const navMap = 'https://www.google.com/maps/dir/?api=1&destination=' + route.lat + ',' + route.lng;
                 const searchGoogle = 'https://www.google.com/search?q=' + encodeURIComponent(route.name + ' scialpinismo');
-                
-                // Link Varsom diretto e sicuro alla sezione bollettini
+                const photoSearch = 'https://www.google.com/search?tbm=isch&q=' + encodeURIComponent(route.name + ' Lofoten ski touring');
                 const varsomUrl = 'https://www.varsom.no/en/avalanche-bulletins/';
 
                 const popup = `
                     <div class="popup-content">
-                        <img src="${route.img}" class="popup-img" alt="${route.name}" onerror="this.style.display='none'">
                         <h3>${route.name}</h3>
                         <div class="popup-info">
                             <strong><i class="fa-solid fa-location-dot"></i> Zona:</strong> ${route.area}<br>
@@ -228,6 +215,7 @@
                         </div>
                         <div class="popup-links">
                             <a href="${navMap}" target="_blank" class="gmaps-btn"><i class="fa-solid fa-car"></i> Naviga al Parcheggio</a>
+                            <a href="${photoSearch}" target="_blank" class="btn-photo"><i class="fa-solid fa-camera"></i> Foto Reali della Cima</a>
                             <a href="${searchGoogle}" target="_blank" class="btn-review"><i class="fa-brands fa-google"></i> Cerca "${route.name} scialpinismo"</a>
                             <a href="${varsomUrl}" target="_blank" class="btn-varsom"><i class="fa-solid fa-triangle-exclamation"></i> Varsom: Bollettino Neve</a>
                         </div>
@@ -246,12 +234,9 @@
                 const card = document.createElement('div');
                 card.className = 'route-card ' + route.diff;
                 card.innerHTML = `
-                    <img src="${route.img}" class="card-thumb" alt="${route.name}" onerror="this.style.display='none'">
-                    <div class="card-content">
-                        <div class="route-title"><span>${route.name}</span><span class="badge ${route.diff}">${route.diff}</span></div>
-                        <div class="route-meta"><span><i class="fa-solid fa-mountain"></i> ${route.elev}m</span> <span><i class="fa-solid fa-location-dot"></i> ${route.area}</span></div>
-                        <div class="route-desc">${route.desc}</div>
-                    </div>`;
+                    <div class="route-title"><span>${route.name}</span><span class="badge ${route.diff}">${route.diff}</span></div>
+                    <div class="route-meta"><span><i class="fa-solid fa-mountain"></i> ${route.elev}m</span> <span><i class="fa-solid fa-location-dot"></i> ${route.area}</span></div>
+                    <div class="route-desc">${route.desc}</div>`;
 
                 card.addEventListener('click', () => { map.setView([route.lat, route.lng], 13); marker.openPopup(); });
                 list.appendChild(card);
