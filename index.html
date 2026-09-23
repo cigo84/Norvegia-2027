@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Lofoten Ski Touring - Mappa Completa (52 Itinerari)</title>
+    <title>Lofoten Ski Touring - Mappa Completa</title>
     
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -20,8 +20,8 @@
         .header p { font-size: 0.75rem; color: #94a3b8; margin-top: 4px; }
         .controls { padding: 10px 15px; display: flex; flex-direction: column; gap: 8px; background: #0f172a; border-bottom: 1px solid #334155; }
         
-        /* Stili Pulsante GPS e Filtri */
         .gps-btn { background: #10b981; color: white; border: none; padding: 8px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.8rem; }
+        .gps-btn:active { background: #059669; }
         .filter-buttons { display: flex; gap: 4px; }
         .filter-btn { flex: 1; padding: 6px 4px; font-size: 0.7rem; font-weight: 600; border-radius: 6px; border: none; cursor: pointer; background: #1e293b; color: #94a3b8; text-align: center; }
         .filter-btn.active, .filter-btn:hover { background: #0284c7; color: #fff; }
@@ -66,12 +66,12 @@
         <div id="sidebar">
             <div class="header">
                 <h1><i class="fa-solid fa-book"></i> Magic Islands Ski Map</h1>
-                <p>Tutti i 52 itinerari del libro. Pin sui parcheggi reali.</p>
+                <p>Tutti gli itinerari della guida cartacea con geolocalizzazione.</p>
             </div>
             
             <div class="controls">
                 <button class="gps-btn" onclick="locateUser()">
-                    <i class="fa-solid fa-crosshairs"></i> Posizione GPS
+                    <i class="fa-solid fa-location-crosshairs"></i> Mostra la mia posizione GPS
                 </button>
                 <div class="search-box">
                     <i class="fa-solid fa-magnifying-glass"></i>
@@ -93,7 +93,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         const routes = [
-            // MOSKENESØYA & FLAKSTADØYA
+            // MOSKENESØYA & FLAKSTADØYA & VESTVÅGØYA
             { name: "Naveren", area: "Flakstadøya", lat: 68.046, lng: 13.295, elev: 695, diff: "BS", desc: "Vetta a sud dell'isola di Flakstad." },
             { name: "Ryten", area: "Fredvang", lat: 68.0833, lng: 13.1558, elev: 543, diff: "MS", desc: "Vistosa scogliera su Kvalvika. Parcheggio Innersand." },
             { name: "Stornappstind", area: "Napp", lat: 68.1278, lng: 13.4357, elev: 740, diff: "BS", desc: "Sopra il tunnel di Napp. Neve polverosa a nord." },
@@ -145,7 +145,7 @@
             { name: "Trollsadelen", area: "Laupstad", lat: 68.380, lng: 14.700, elev: 800, diff: "OS", desc: "La sella dei Troll, pendii sostenuti." },
             { name: "Langstrandstind", area: "Laupstad", lat: 68.390, lng: 14.710, elev: 900, diff: "OS", desc: "Montagna impegnativa a nord di Geitgaljen." },
 
-            // TROLLFJORDEN (Accesso barca)
+            // TROLLFJORDEN
             { name: "Store Trolltind", area: "Trollfjorden (Solo Barca)", lat: 68.360, lng: 14.950, elev: 1000, diff: "OSA", desc: "Accesso in gommone/barca. Ambiente alpino severo." },
             { name: "TM7", area: "Trollfjorden (Solo Barca)", lat: 68.365, lng: 14.960, elev: 800, diff: "OS", desc: "Accesso via mare. Pendii impressionanti." },
             { name: "Trollrenna", area: "Trollfjorden (Solo Barca)", lat: 68.370, lng: 14.940, elev: 900, diff: "OSA", desc: "Il famoso e ripido canale dei Troll." },
@@ -167,10 +167,10 @@
         let markers = [];
         let userLocationMarker = null;
 
-        // Funzione Geolocation (GPS)
+        // Funzione GPS integrata
         function locateUser() {
             if (!navigator.geolocation) {
-                alert("GPS non supportato dal browser.");
+                alert("La geolocalizzazione GPS non è supportata dal browser.");
                 return;
             }
             navigator.geolocation.getCurrentPosition(
@@ -181,12 +181,12 @@
                         map.removeLayer(userLocationMarker);
                     }
                     userLocationMarker = L.circleMarker([lat, lng], {
-                        radius: 8, fillColor: "#ef4444", color: "#ffffff", weight: 3, opacity: 1, fillOpacity: 0.9
-                    }).addTo(map).bindPopup("<b>La tua posizione</b>").openPopup();
+                        radius: 8, fillColor: "#38bdf8", color: "#ffffff", weight: 3, opacity: 1, fillOpacity: 0.9
+                    }).addTo(map).bindPopup("<b>La tua posizione attuale</b>").openPopup();
                     map.setView([lat, lng], 11);
                 },
-                () => {
-                    alert("Attiva i permessi GPS su Safari per la geolocalizzazione.");
+                (err) => {
+                    alert("Impossibile recuperare la posizione. Verificare che i servizi di localizzazione siano attivi.");
                 },
                 { enableHighAccuracy: true }
             );
@@ -200,7 +200,9 @@
 
             data.forEach(route => {
                 const navMap = 'https://www.google.com/maps/dir/?api=1&destination=' + route.lat + ',' + route.lng;
-                const searchGoogle = 'https://www.google.com/search?q=' + encodeURIComponent(route.name + ' Lofoten ski touring gpx');
+                
+                // Query esplicita: "NomeGita scialpinismo"
+                const searchGoogle = 'https://www.google.com/search?q=' + encodeURIComponent(route.name + ' scialpinismo');
 
                 const popup = `
                     <div class="popup-content">
@@ -211,8 +213,8 @@
                             <p style="margin-top:5px; font-size:0.75rem;">${route.desc}</p>
                         </div>
                         <div class="popup-links">
-                            <a href="${navMap}" target="_blank" class="gmaps-btn"><i class="fa-solid fa-car"></i> Naviga a Start/Parcheggio</a>
-                            <a href="${searchGoogle}" target="_blank" class="btn-review"><i class="fa-brands fa-google"></i> Cerca Report e GPX</a>
+                            <a href="${navMap}" target="_blank" class="gmaps-btn"><i class="fa-solid fa-car"></i> Naviga al Parcheggio</a>
+                            <a href="${searchGoogle}" target="_blank" class="btn-review"><i class="fa-brands fa-google"></i> Cerca "${route.name} scialpinismo"</a>
                             <a href="https://www.varsom.no/en/avalanche-bulletins/forecast/Lofoten%20and%20Vester%C3%A5len/" target="_blank" class="btn-varsom"><i class="fa-solid fa-triangle-exclamation"></i> Varsom: Bollettino Neve</a>
                         </div>
                     </div>`;
