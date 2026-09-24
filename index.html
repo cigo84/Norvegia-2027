@@ -54,6 +54,7 @@
         .popup-links { display: flex; flex-direction: column; gap: 6px; }
         .popup-links a { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 8px; text-decoration: none; border-radius: 6px; font-size: 0.8rem; font-weight: 600; border: 1px solid #334155; }
         .popup-links a.gmaps-btn { background: #059669; color: #fff; border: none; }
+        .popup-links a.btn-wikiloc { background: #4fa800; color: #fff; border: none; }
         .popup-links a.btn-photo { background: #8b5cf6; color: #fff; border: none; }
         .popup-links a.btn-review { background: #0284c7; color: #fff; border: none; }
         .popup-links a.btn-varsom { background: #ea580c; color: #fff; border: none; }
@@ -202,6 +203,7 @@
             data.forEach(route => {
                 const navMap = 'https://www.google.com/maps/dir/?api=1&destination=' + route.lat + ',' + route.lng;
                 const searchGoogle = 'https://www.google.com/search?q=' + encodeURIComponent(route.name + ' scialpinismo');
+                const searchWikiloc = 'https://www.google.com/search?q=' + encodeURIComponent(route.name + ' scialpinismo wikiloc');
                 const photoSearch = 'https://www.google.com/search?tbm=isch&q=' + encodeURIComponent(route.name + ' Lofoten ski touring');
                 const varsomUrl = 'https://www.varsom.no/en/avalanche-bulletins/';
 
@@ -215,6 +217,7 @@
                         </div>
                         <div class="popup-links">
                             <a href="${navMap}" target="_blank" class="gmaps-btn"><i class="fa-solid fa-car"></i> Naviga al Parcheggio</a>
+                            <a href="${searchWikiloc}" target="_blank" class="btn-wikiloc"><i class="fa-solid fa-route"></i> Wikiloc: Traccia e GPX</a>
                             <a href="${photoSearch}" target="_blank" class="btn-photo"><i class="fa-solid fa-camera"></i> Foto Reali della Cima</a>
                             <a href="${searchGoogle}" target="_blank" class="btn-review"><i class="fa-brands fa-google"></i> Cerca "${route.name} scialpinismo"</a>
                             <a href="${varsomUrl}" target="_blank" class="btn-varsom"><i class="fa-solid fa-triangle-exclamation"></i> Varsom: Bollettino Neve</a>
