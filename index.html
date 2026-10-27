@@ -23,8 +23,9 @@
         .gps-btn { background: #10b981; color: white; border: none; padding: 8px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.8rem; }
         .gps-btn:active { background: #059669; }
         .filter-buttons { display: flex; gap: 4px; flex-wrap: wrap; }
-        .filter-btn { flex: 1; min-width: 45px; padding: 6px 4px; font-size: 0.7rem; font-weight: 600; border-radius: 6px; border: none; cursor: pointer; background: #1e293b; color: #94a3b8; text-align: center; }
+        .filter-btn { flex: 1; min-width: 42px; padding: 6px 3px; font-size: 0.68rem; font-weight: 600; border-radius: 6px; border: none; cursor: pointer; background: #1e293b; color: #94a3b8; text-align: center; }
         .filter-btn.active, .filter-btn:hover { background: #0284c7; color: #fff; }
+        .filter-btn.classic-btn.active { background: #eab308; color: #000; font-weight: 700; }
         .filter-btn.gully-btn.active { background: #a855f7; color: #fff; }
 
         .search-box { position: relative; }
@@ -38,8 +39,9 @@
         .route-card.OS { border-left-color: #f97316; }
         .route-card.OSA { border-left-color: #ef4444; }
         
-        .route-title { font-weight: 700; font-size: 0.9rem; color: #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
-        .route-meta { display: flex; gap: 8px; font-size: 0.72rem; color: #94a3b8; margin-top: 4px; align-items: center; }
+        .route-title { font-weight: 700; font-size: 0.9rem; color: #f1f5f9; display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; }
+        .route-badges { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+        .route-meta { display: flex; gap: 8px; font-size: 0.72rem; color: #94a3b8; margin-top: 4px; align-items: center; flex-wrap: wrap; }
         .route-desc { font-size: 0.78rem; color: #cbd5e1; margin-top: 6px; line-height: 1.3; }
         
         .badge { font-size: 0.65rem; padding: 2px 5px; border-radius: 4px; font-weight: bold; color: #fff; }
@@ -47,12 +49,14 @@
         .badge.BS { background: #3b82f6; }
         .badge.OS { background: #f97316; }
         .badge.OSA { background: #ef4444; }
-        .tag-gully { background: #8b5cf6; color: #fff; font-size: 0.65rem; padding: 2px 5px; border-radius: 4px; font-weight: bold; }
+        .badge-book { background: #334155; color: #38bdf8; border: 1px solid #0284c7; }
+        .badge-classic { background: #eab308; color: #000; font-weight: 800; }
+        .badge-gully { background: #8b5cf6; color: #fff; }
         
         .leaflet-popup-content-wrapper { background: #0f172a; color: #f8fafc; border-radius: 10px; border: 1px solid #334155; padding: 2px; }
         .leaflet-popup-tip { background: #0f172a; }
         .popup-content h3 { color: #38bdf8; font-size: 1.05rem; margin-bottom: 4px; }
-        .popup-info { font-size: 0.8rem; margin-bottom: 8px; color: #cbd5e1; }
+        .popup-info { font-size: 0.8rem; margin-bottom: 8px; color: #cbd5e1; line-height: 1.4; }
         .popup-links { display: flex; flex-direction: column; gap: 6px; }
         .popup-links a { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 8px; text-decoration: none; border-radius: 6px; font-size: 0.8rem; font-weight: 600; border: 1px solid #334155; }
         .popup-links a.gmaps-btn { background: #059669; color: #fff; border: none; }
@@ -61,7 +65,7 @@
         .popup-links a.btn-review { background: #0284c7; color: #fff; border: none; }
         .popup-links a.btn-varsom { background: #ea580c; color: #fff; border: none; }
         
-        @media (min-width: 769px) { .app-container { flex-direction: row-reverse; } #map { flex: 1; height: 100%; } #sidebar { width: 380px; height: 100%; border-top: none; border-right: 1px solid #334155; } }
+        @media (min-width: 769px) { .app-container { flex-direction: row-reverse; } #map { flex: 1; height: 100%; } #sidebar { width: 400px; height: 100%; border-top: none; border-right: 1px solid #334155; } }
     </style>
 </head>
 <body>
@@ -70,8 +74,8 @@
         <div id="map"></div>
         <div id="sidebar">
             <div class="header">
-                <h1><i class="fa-solid fa-book"></i> Magic Islands Ski Map</h1>
-                <p>Mappa completa della guida cartacea. Pin sui parcheggi.</p>
+                <h1><i class="fa-solid fa-book-atlas"></i> Lofoten Ski Touring Map</h1>
+                <p>Allineata alla guida cartacea (Sez. 1, 2 e 3) con classiche e canali.</p>
             </div>
             
             <div class="controls">
@@ -80,15 +84,16 @@
                 </button>
                 <div class="search-box">
                     <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" id="searchInput" placeholder="Cerca montagna o area..." onkeyup="filterRoutes()">
+                    <input type="text" id="searchInput" placeholder="Cerca montagna, numero o area..." onkeyup="filterRoutes()">
                 </div>
                 <div class="filter-buttons">
                     <button class="filter-btn active" onclick="filterDifficulty('ALL', this)">Tutti</button>
+                    <button class="filter-btn classic-btn" onclick="filterDifficulty('CLASSIC', this)">⭐ Classiche</button>
+                    <button class="filter-btn gully-btn" onclick="filterDifficulty('GULLY', this)">⛏️ Canali</button>
                     <button class="filter-btn" onclick="filterDifficulty('MS', this)">MS</button>
                     <button class="filter-btn" onclick="filterDifficulty('BS', this)">BS</button>
                     <button class="filter-btn" onclick="filterDifficulty('OS', this)">OS</button>
                     <button class="filter-btn" onclick="filterDifficulty('OSA', this)">OSA</button>
-                    <button class="filter-btn gully-btn" onclick="filterDifficulty('GULLY', this)">⛏️ Canali</button>
                 </div>
             </div>
             
@@ -99,64 +104,71 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         const routes = [
-            // MOSKENESØYA & FLAKSTADØYA & VESTVÅGØYA
-            { name: "Naveren", area: "Flakstadøya", lat: 68.046, lng: 13.295, elev: 695, diff: "BS", desc: "Vetta a sud dell'isola di Flakstad.", gully: false },
-            { name: "Ryten", area: "Fredvang", lat: 68.0833, lng: 13.1558, elev: 543, diff: "MS", desc: "Vistosa scogliera su Kvalvika. Parcheggio Innersand.", gully: false },
-            { name: "Stornappstind", area: "Napp", lat: 68.1278, lng: 13.4357, elev: 740, diff: "BS", desc: "Sopra il tunnel di Napp. Neve polverosa a nord.", gully: false },
-            { name: "Store Klauva", area: "Flakstad", lat: 68.106, lng: 13.385, elev: 775, diff: "BS", desc: "Adiacente allo Stornappstind.", gully: false },
-            { name: "Himmeltind", area: "Haukland", lat: 68.1996, lng: 13.5292, elev: 964, diff: "BS", desc: "Sopra le spiagge bianche. Parcheggio Haukland.", gully: false },
-            { name: "Limstrandstind & Rødrevheia", area: "Vestvågøya", lat: 68.232, lng: 13.805, elev: 650, diff: "MS", desc: "Gita panoramica e morbida.", gully: false },
-            { name: "Haveren", area: "Vestvågøya", lat: 68.2650, lng: 13.8400, elev: 808, diff: "BS", desc: "Grande montagna, pendii costanti est.", gully: false },
-            { name: "Hellostinden", area: "Vestvågøya", lat: 68.256, lng: 13.815, elev: 580, diff: "MS", desc: "Facile e panoramica, orientamento sud.", gully: false },
-            { name: "Håtinden", area: "Vestvågøya", lat: 68.251, lng: 13.834, elev: 640, diff: "MS", desc: "Ottima vista verso l'oceano.", gully: false },
-            { name: "Dalstuva", area: "Vestvågøya", lat: 68.1800, lng: 13.7000, elev: 562, diff: "MS", desc: "Accessibile nel cuore dell'isola.", gully: false },
-            { name: "Skokkelvika Gullys", area: "Vestvågøya", lat: 68.195, lng: 13.715, elev: 500, diff: "OS", desc: "Canali incassati verso nord. Richiede piccozza e ramponi.", gully: true },
-            { name: "Justadtind", area: "Hagskaret", lat: 68.2125, lng: 13.8820, elev: 738, diff: "MS", desc: "Grande classica. Parcheggio passo Hagskaret.", gully: false },
-            { name: "Kangerurtinden", area: "Vestvågøya", lat: 68.225, lng: 13.895, elev: 700, diff: "BS", desc: "Vetta secondaria vicina al Justadtind.", gully: false },
-            { name: "Hoven", area: "Gimsøya", lat: 68.3344, lng: 14.0950, elev: 368, diff: "MS", desc: "Isolata con vista 360°. Parcheggio Golf Club Hov.", gully: false },
-            { name: "The Ski Hills", area: "Gimsøya", lat: 68.315, lng: 14.120, elev: 400, diff: "MS", desc: "Dolci colline ottime per principianti.", gully: false },
-            { name: "The East (Moskenes)", area: "Sørvågen", lat: 67.889, lng: 13.016, elev: 600, diff: "BS", desc: "Esplorazioni nel profondo sud estremo.", gully: false },
+            // SEZIONE 1: Moskenesøya, Flakstadøya, Vestvågøya and Gimsøya
+            { bookRef: "1.1 (p. 38)", name: "Ryten", area: "Fredvang", lat: 68.0833, lng: 13.1558, elev: 543, diff: "MS", isClassic: true, gully: false, desc: "Celebre scogliera a picco sulla spiaggia di Kvalvika. Parcheggio Innersand." },
+            { bookRef: "1.2 (p. 40)", name: "Stornappstinden", area: "Napp", lat: 68.1278, lng: 13.4357, elev: 740, diff: "BS", isClassic: true, gully: false, desc: "Direttamente sopra l'imbocco del tunnel sottomarino di Napp. Ottima neve a nord." },
+            { bookRef: "1.3 (p. 42)", name: "Himmeltinden", area: "Haukland", lat: 68.1996, lng: 13.5292, elev: 964, diff: "BS", isClassic: true, gully: false, desc: "La cima più alta di Vestvågøya, sovrasta le spiagge caraibiche di Haukland e Uttakleiv." },
+            { bookRef: "1.4 (p. 46)", name: "Guratinden", area: "Vestvågøya", lat: 68.1402, lng: 13.5680, elev: 580, diff: "MS", isClassic: false, gully: false, desc: "Gita panoramica e veloce nel centro-sud di Vestvågøya vicino a Gravdal." },
+            { bookRef: "1.5 (p. 48)", name: "Justadtinden", area: "Hagskaret", lat: 68.2125, lng: 13.8820, elev: 738, diff: "MS", isClassic: true, gully: false, desc: "Grande classica percorsa da molti scialpinisti. Partenza comoda dal valico di Hagskaret." },
+            { bookRef: "1.6 (p. 52)", name: "Blåtinden", area: "Vestvågøya", lat: 68.1450, lng: 13.8310, elev: 630, diff: "BS", isClassic: false, gully: false, desc: "Cima affacciata su Stamsund con bella visuale sul mare interno." },
+            { bookRef: "1.7 (p. 56)", name: "Breitinden (Rolvsfjorden)", area: "Vestvågøya", lat: 68.2450, lng: 13.7820, elev: 660, diff: "BS", isClassic: false, gully: false, desc: "Salita dal fiordo di Rolvsfjorden con costanti pendenze sciabili." },
+            { bookRef: "1.8 (p. 58)", name: "Dalstuva", area: "Vestvågøya", lat: 68.1800, lng: 13.7000, elev: 562, diff: "MS", isClassic: false, gully: false, desc: "Accesso facile e rilassante nel cuore dell'isola. Ideale con meteo incerto." },
+            { bookRef: "1.9 (p. 60)", name: "Hellostinden", area: "Vestvågøya", lat: 68.2560, lng: 13.8150, elev: 580, diff: "MS", isClassic: false, gully: false, desc: "Gita morbida e panoramica esposta a sud verso i pascoli di Bøstad." },
+            { bookRef: "1.10 (p. 62)", name: "Håtinden", area: "Vestvågøya", lat: 68.2510, lng: 13.8340, elev: 640, diff: "MS", isClassic: false, gully: false, desc: "Cima panoramica con ampie vedute aperte verso nord e l'Oceano Atlantico." },
+            { bookRef: "1.11 (p. 66)", name: "Smørtvarden", area: "Vestvågøya", lat: 68.2610, lng: 13.7420, elev: 500, diff: "MS", isClassic: false, gully: false, desc: "Dossi dolci ed ondulati ideali per principianti e uscite a basso pericolo valanghe." },
+            { bookRef: "1.12 (p. 68)", name: "Rødrevheia", area: "Vestvågøya", lat: 68.2320, lng: 13.8050, elev: 650, diff: "MS", isClassic: false, gully: false, desc: "Spesso concatenata con il Limstrandstinden, ampi spazi e bella sciata." },
+            { bookRef: "1.13 (p. 70)", name: "Hoven", area: "Gimsøya", lat: 68.3344, lng: 14.0950, elev: 368, diff: "MS", isClassic: true, gully: false, desc: "Montagna isolata e inconfondibile che sorge dal mare. Partenza dal Lofoten Links." },
+            { bookRef: "1.14 (p. 72)", name: "Nordheia", area: "Gimsøya", lat: 68.3050, lng: 14.1500, elev: 550, diff: "MS", isClassic: false, gully: false, desc: "Dossi regolari con vista spettacolare sul ponte di Gimsøystraumen." },
 
-            // AUSTVÅGØYA
-            { name: "Sydalsfjellet", area: "Sydal", lat: 68.330, lng: 14.520, elev: 730, diff: "BS", desc: "Partenza dal porticciolo di Sydal.", gully: false },
-            { name: "Kroktind", area: "Sydal", lat: 68.320, lng: 14.500, elev: 700, diff: "BS", desc: "Vetta panoramica sul fiordo.", gully: false },
-            { name: "Kleppstadheia", area: "Kleppstad", lat: 68.256, lng: 14.280, elev: 500, diff: "MS", desc: "Bella vista verso Henningsvær.", gully: false },
-            { name: "Glomtind", area: "Rørvikskaret", lat: 68.2163, lng: 14.4042, elev: 419, diff: "MS", desc: "Breve gita. Parcheggio al passo Rørvikskaret.", gully: false },
-            { name: "Trolldalen Gully", area: "Kabelvåg", lat: 68.225, lng: 14.425, elev: 500, diff: "OS", desc: "Canale ripido e stretto. Salita con piccozza e ramponi.", gully: true },
-            { name: "Presten Gully", area: "Henningsvær", lat: 68.167, lng: 14.214, elev: 400, diff: "OS", desc: "Canale a picco sul mare a fianco della paretona di Presten.", gully: true },
-            { name: "Kvanndalstind", area: "Henningsvær", lat: 68.180, lng: 14.230, elev: 700, diff: "OS", desc: "Severo percorso alpinistico sopra Kalle.", gully: false },
-            { name: "Varden - Olderdalen", area: "Svolvær", lat: 68.2435, lng: 14.5458, elev: 464, diff: "MS", desc: "La gita di casa da Svolvær. Parcheggio asilo Knutmarka.", gully: false },
-            { name: "Stortind", area: "Svolvær", lat: 68.255, lng: 14.535, elev: 730, diff: "BS", desc: "Vetta principale dietro la città.", gully: false },
-            { name: "Varden - East", area: "Svolvær", lat: 68.243, lng: 14.545, elev: 464, diff: "MS", desc: "Versante est del Varden.", gully: false },
-            { name: "Spisstind", area: "Svolvær", lat: 68.260, lng: 14.550, elev: 650, diff: "BS", desc: "Punta affilata nel massiccio di Svolvær.", gully: false },
-            { name: "Tuva", area: "Svolvær", lat: 68.2580, lng: 14.5300, elev: 475, diff: "MS", desc: "Gita tranquilla ed accessibile.", gully: false },
-            { name: "Blåtind - Main Basin", area: "Svolvær", lat: 68.2420, lng: 14.5900, elev: 621, diff: "BS", desc: "Splendido anfiteatro nevoso.", gully: false },
-            { name: "Blåtind - Frontside", area: "Svolvær", lat: 68.242, lng: 14.590, elev: 621, diff: "BS", desc: "Pendio frontale diretto, ben visibile.", gully: false },
-            { name: "Jomfrudalen", area: "Austvågøya", lat: 68.270, lng: 14.580, elev: 500, diff: "MS", desc: "Vallone isolato, ottimo con neve sicura.", gully: false },
-            { name: "Rundfjellet - Vaterfjorden", area: "Laupstad", lat: 68.3850, lng: 14.6900, elev: 803, diff: "BS", desc: "Salita classica dal fiordo.", gully: false },
-            { name: "Rundfjellet - South Face", area: "Laupstad", lat: 68.385, lng: 14.690, elev: 803, diff: "BS", desc: "Pendio sud, si trasforma in fretta in primavera.", gully: false },
-            { name: "Rundfjellet - Kudalen", area: "Laupstad", lat: 68.385, lng: 14.690, elev: 803, diff: "BS", desc: "Variante per la valle di Kudalen.", gully: false },
-            { name: "Hellskarnuten", area: "Laupstad", lat: 68.380, lng: 14.680, elev: 750, diff: "BS", desc: "Vicino a Rundfjellet.", gully: false },
-            { name: "Grønnfjellet - Stordalen", area: "Vestpollen", lat: 68.310, lng: 14.600, elev: 700, diff: "BS", desc: "Salita dalla valle di Stordalen.", gully: false },
-            { name: "Grønnfjellet - Vestpollen", area: "Vestpollen", lat: 68.310, lng: 14.600, elev: 700, diff: "BS", desc: "Salita dal braccio del fiordo.", gully: false },
-            { name: "Torskmannen", area: "Sydal", lat: 68.3371, lng: 14.5367, elev: 755, diff: "BS", desc: "Ampi pendii continui, ideale per grandi curve.", gully: false },
-            { name: "Breitind", area: "Laupstad", lat: 68.350, lng: 14.620, elev: 700, diff: "BS", desc: "Vetta massiccia vicina a Torskmannen.", gully: false },
-            { name: "Kistbergtind", area: "Laupstad", lat: 68.360, lng: 14.630, elev: 750, diff: "BS", desc: "Dossi e pendii regolari.", gully: false },
-            { name: "Store Kvittind", area: "Austnesfjorden", lat: 68.3571, lng: 14.6062, elev: 745, diff: "MS", desc: "Parcheggio lungo la E10.", gully: false },
-            { name: "Pilan", area: "Laupstad", lat: 68.3686, lng: 14.6543, elev: 828, diff: "BS", desc: "Un must delle Lofoten. Parcheggio sulla E10.", gully: false },
-            { name: "Sautind", area: "Laupstad", lat: 68.3686, lng: 14.6543, elev: 596, diff: "MS", desc: "Anticima di Pilan, per uscite brevi.", gully: false },
-            { name: "Matmora", area: "Delp", lat: 68.3720, lng: 14.3500, elev: 788, diff: "BS", desc: "A nord-ovest, vista infinita sull'Atlantico.", gully: false },
-            { name: "Geitgallien", area: "Laupstad", lat: 68.3751, lng: 14.6738, elev: 1085, diff: "OSA", desc: "La regina assoluta. Richiede esperienza alpinistica.", gully: false },
-            { name: "Geitgallien - South Gully", area: "Laupstad", lat: 68.3751, lng: 14.6738, elev: 1085, diff: "OSA", desc: "Estetico e ripidissimo canale sud. Salita in bootpack con picca e ramponi.", gully: true },
-            { name: "Trollsadelen", area: "Laupstad", lat: 68.380, lng: 14.700, elev: 800, diff: "OS", desc: "La sella dei Troll, pendii sostenuti.", gully: false },
-            { name: "Langstrandstind", area: "Laupstad", lat: 68.390, lng: 14.710, elev: 900, diff: "OS", desc: "Montagna impegnativa a nord di Geitgaljen.", gully: false },
+            // SEZIONE 2: Austvågøya South
+            { bookRef: "2.1 (p. 88)", name: "Sydalsfjellet", area: "Sydal", lat: 68.3300, lng: 14.5200, elev: 730, diff: "BS", isClassic: true, gully: false, desc: "Classica salita sopra il fiordo di Sydal con pendii regolari e splendida vista mare." },
+            { bookRef: "2.2 (p. 90)", name: "Borkkvantotinden", area: "Austvågøya", lat: 68.3150, lng: 14.4800, elev: 650, diff: "BS", isClassic: false, gully: false, desc: "Vetta appartata vicino a Sydal con ottima sciata su pendii poco battuti." },
+            { bookRef: "2.3 (p. 92)", name: "Kleppstadheia", area: "Kleppstad", lat: 68.2560, lng: 14.2800, elev: 500, diff: "MS", isClassic: false, gully: false, desc: "Gita introduttiva di grande respiro panoramico verso l'isola di Henningsvær." },
+            { bookRef: "2.4 (p. 94)", name: "Kroktinden", area: "Sydal", lat: 68.3200, lng: 14.5000, elev: 700, diff: "BS", isClassic: false, gully: false, desc: "Bella vetta conica con discesa continua ed esposta verso il fiordo." },
+            { bookRef: "2.5 (p. 96)", name: "Glomtinden", area: "Rørvikskaret", lat: 68.2163, lng: 14.4042, elev: 419, diff: "MS", isClassic: true, gully: false, desc: "Classica veloce lungo la vecchia strada del colle. Perfetta per mezza giornata." },
+            { bookRef: "2.6 (p. 98)", name: "Varden", area: "Svolvær", lat: 68.2435, lng: 14.5458, elev: 464, diff: "MS", isClassic: true, gully: false, desc: "La gita di riferimento di Svolvær, con partenza dall'asilo di Knutmarka." },
+            { bookRef: "2.7 (p. 102)", name: "Stortinden", area: "Svolvær", lat: 68.2550, lng: 14.5350, elev: 730, diff: "BS", isClassic: false, gully: false, desc: "Cima imponente alle spalle del Varden, pendii più sostenuti e tecnici." },
+            { bookRef: "2.8 (p. 106)", name: "Spisstinden", area: "Svolvær", lat: 68.2600, lng: 14.5500, elev: 650, diff: "BS", isClassic: false, gully: false, desc: "Guglia affilata che richiede buone condizioni di stabilità della neve." },
+            { bookRef: "2.9 (p. 108)", name: "Dronningtinden", area: "Svolvær", lat: 68.2650, lng: 14.5600, elev: 680, diff: "BS", isClassic: false, gully: false, desc: "Cima della 'Regina' nel settore interno montuoso di Svolvær." },
+            { bookRef: "2.10 (p. 110)", name: "Topp 576 (Kongstindryggen)", area: "Svolvær", lat: 68.2450, lng: 14.5200, elev: 576, diff: "BS", isClassic: false, gully: false, desc: "Cresta sciabile sopra il centro sciistico locale Kongstind." },
+            { bookRef: "2.11 (p. 112)", name: "Topp 616 (Kongstindryggen)", area: "Svolvær", lat: 68.2480, lng: 14.5220, elev: 616, diff: "BS", isClassic: false, gully: false, desc: "Punto culminante della cresta di Kongstinden, vista sul Vestfjorden." },
+            { bookRef: "2.12 (p. 114)", name: "Store Kongstinden", area: "Svolvær", lat: 68.2460, lng: 14.5150, elev: 552, diff: "BS", isClassic: false, gully: false, desc: "Vetta principale del massiccio di Kongstind con canali e pendii divertenti." },
+            { bookRef: "2.13 (p. 116)", name: "Lille Kongstinden", area: "Svolvær", lat: 68.2420, lng: 14.5100, elev: 390, diff: "MS", isClassic: false, gully: false, desc: "Salita breve e rapida alle porte della cittadina." },
+            { bookRef: "2.14 (p. 118)", name: "Mingmaurtindan", area: "Austvågøya", lat: 68.2520, lng: 14.5700, elev: 600, diff: "BS", isClassic: false, gully: false, desc: "Ambiente selvaggio e poco frequentato nel bacino orientale di Svolvær." },
+            { bookRef: "2.15 (p. 122)", name: "Hans Meyer-fjellet", area: "Laukvik", lat: 68.3550, lng: 14.4500, elev: 580, diff: "MS", isClassic: false, gully: false, desc: "Montagna aperta a nord-ovest sopra Laukvik con viste mozzafiato sull'Oceano." },
+            { bookRef: "2.16 (p. 124)", name: "Rismålstindan", area: "Austvågøya", lat: 68.2750, lng: 14.4800, elev: 650, diff: "BS", isClassic: false, gully: false, desc: "Crestine panoramiche e valloni appartati dell'entroterra." },
+            { bookRef: "2.17 (p. 126)", name: "Tjeldborgtinden", area: "Kabelvåg", lat: 68.2200, lng: 14.4900, elev: 444, diff: "MS", isClassic: false, gully: false, desc: "Splendida anticima panoramica tra le baie di Kabelvåg e Svolvær." },
+            { bookRef: "2.18 (p. 130)", name: "Fløya", area: "Svolvær", lat: 68.2490, lng: 14.5750, elev: 590, diff: "BS", isClassic: false, gully: false, desc: "La celebre montagna sopra la guglia rocciosa dello Svolværgeita." },
+            { bookRef: "2.19 (p. 132)", name: "Tuva", area: "Svolvær", lat: 68.2580, lng: 14.5300, elev: 475, diff: "MS", isClassic: false, gully: false, desc: "Panettone nevoso accessibile e sicuro, spesso combinato con il Varden." },
+            { bookRef: "2.20 (p. 134)", name: "Jomfrutindan 560 m", area: "Austvågøya", lat: 68.2700, lng: 14.5800, elev: 560, diff: "MS", isClassic: false, gully: false, desc: "Primo picco del vallone di Jomfrudalen, ottimo riparo dal vento." },
+            { bookRef: "2.21 (p. 136)", name: "Jomfrutindan 587 m", area: "Austvågøya", lat: 68.2730, lng: 14.5850, elev: 587, diff: "BS", isClassic: false, gully: false, desc: "Punto più alto della dorsale di Jomfrutindan con pendio finale più ripido." },
+            { bookRef: "2.22 (p. 138)", name: "Botntinden", area: "Austvågøya", lat: 68.3400, lng: 14.6500, elev: 750, diff: "BS", isClassic: false, gully: false, desc: "Isolato sperone che scende direttamente nel braccio interno dell'Austnesfjorden." },
+            { bookRef: "2.23 (p. 142)", name: "Torskmannen", area: "Sydal", lat: 68.3371, lng: 14.5367, elev: 755, diff: "BS", isClassic: true, gully: false, desc: "Grande classica! Pendio continuo ed uniforme da cima a fondo ideale per sciare." },
+            { bookRef: "2.24 (p. 146)", name: "Rundfjellet", area: "Laupstad", lat: 68.3850, lng: 14.6900, elev: 803, diff: "BS", isClassic: true, gully: false, desc: "La classica dell'Austnesfjorden con discesa spettacolare su Vaterfjorden." },
+            { bookRef: "2.25 (p. 150)", name: "Lille Kvittinden", area: "Austnesfjorden", lat: 68.3500, lng: 14.6000, elev: 620, diff: "MS", isClassic: false, gully: false, desc: "Anticima comoda e sicura prima di salire al maestoso Store Kvittind." },
 
-            // TROLLFJORDEN
-            { name: "Store Trolltind", area: "Trollfjorden (Solo Barca)", lat: 68.360, lng: 14.950, elev: 1000, diff: "OSA", desc: "Accesso in barca. Ambiente alpinistico severo.", gully: false },
-            { name: "TM7", area: "Trollfjorden (Solo Barca)", lat: 68.365, lng: 14.960, elev: 800, diff: "OS", desc: "Accesso via mare. Canali e pendii impressionanti.", gully: true },
-            { name: "Trollrenna", area: "Trollfjorden (Solo Barca)", lat: 68.370, lng: 14.940, elev: 900, diff: "OSA", desc: "Il canale dei Troll per eccellenza. Stretto, >40°, picca e ramponi obbligatori.", gully: true },
-            { name: "North Gully", area: "Trollfjorden (Solo Barca)", lat: 68.375, lng: 14.950, elev: 800, diff: "OS", desc: "Canale incassato sul versante nord del fiordo.", gully: true },
-            { name: "Blåskavltinden", area: "Trollfjorden (Solo Barca)", lat: 68.380, lng: 14.970, elev: 1000, diff: "OSA", desc: "Ghiacciaio sospeso e crestine affilate. Servono picca e ramponi.", gully: true }
+            // SEZIONE 3: Austvågøya North
+            { bookRef: "3.1 (p. 166)", name: "Matmora", area: "Delp", lat: 68.3720, lng: 14.3500, elev: 788, diff: "BS", isClassic: true, gully: false, desc: "Regina del versante nord-occidentale. Discesa con vista sterminata sull'oceano aperto." },
+            { bookRef: "3.2 (p. 168)", name: "Torskmannen (Nord)", area: "Austvågøya", lat: 68.3390, lng: 14.5380, elev: 755, diff: "BS", isClassic: true, gully: false, desc: "Accesso alternativo e versanti nord della classica montagna di Sydal." },
+            { bookRef: "3.3 (p. 172)", name: "Breitinden", area: "Laupstad", lat: 68.3500, lng: 14.6200, elev: 700, diff: "BS", isClassic: false, gully: false, desc: "Cima massiccia situata vicino a Torskmannen con ampi valloni glaciali." },
+            { bookRef: "3.4 (p. 176)", name: "Baken", area: "Austvågøya North", lat: 68.3650, lng: 14.6100, elev: 680, diff: "BS", isClassic: false, gully: false, desc: "Cresta e colle tra la conca di Kvittind e le valli orientali." },
+            { bookRef: "3.5 (p. 178)", name: "Kistbergtinden", area: "Laupstad", lat: 68.3600, lng: 14.6300, elev: 750, diff: "BS", isClassic: false, gully: false, desc: "Dossi regolari e discesa costante verso il fiordo." },
+            { bookRef: "3.6 (p. 182)", name: "Store Kvittinden", area: "Austnesfjorden", lat: 68.3571, lng: 14.6062, elev: 745, diff: "MS", isClassic: true, gully: false, desc: "Una delle gite più amate di tutte le Lofoten. Salita sicura e sciata eccellente." },
+            { bookRef: "3.7 (p. 186)", name: "Pilan", area: "Laupstad", lat: 68.3686, lng: 14.6543, elev: 828, diff: "BS", isClassic: true, gully: false, desc: "Il must-have assoluto delle Lofoten. Parcheggio sulla E10 e vista maestosa sul Geitgaljen." },
+            { bookRef: "3.8 (p. 190)", name: "Sautinden", area: "Laupstad", lat: 68.3686, lng: 14.6543, elev: 596, diff: "MS", isClassic: true, gully: false, desc: "Anticima di Pilan, perfetta per giornate corte o per raddoppiare la sciata." },
+            { bookRef: "3.9 (p. 192)", name: "Geitgallien", area: "Laupstad", lat: 68.3751, lng: 14.6738, elev: 1085, diff: "OSA", isClassic: true, gully: false, desc: "La regina indiscussa delle Lofoten. Più di 1000m di dislivello continuo sopra il mare." },
+
+            // ITINERARI EXTRA / CANALI TECNICI (Con Picca & Ramponi)
+            { bookRef: "Extra Canale", name: "Geitgallien (South Gully)", area: "Laupstad", lat: 68.3751, lng: 14.6738, elev: 1085, diff: "OSA", isClassic: true, gully: true, desc: "Il canale sud del Geitgallien. Bootpack ripido (>40°), piccozza e ramponi necessari." },
+            { bookRef: "Extra Canale", name: "Trollrenna", area: "Trollfjorden (Barca)", lat: 68.3700, lng: 14.9400, elev: 900, diff: "OSA", isClassic: true, gully: true, desc: "Il canale leggendario dei Troll a picco sull'acqua. Salita severa con picca e ramponi." },
+            { bookRef: "Extra Canale", name: "Presten Gully", area: "Henningsvær", lat: 68.1670, lng: 14.2140, elev: 400, diff: "OS", isClassic: false, gully: true, desc: "Canale incassato a picco sul mare a ridosso del pilastro di roccia di Presten." },
+            { bookRef: "Extra Canale", name: "Trolldalen Gully", area: "Kabelvåg", lat: 68.2250, lng: 14.4250, elev: 500, diff: "OS", isClassic: false, gully: true, desc: "Canale stretto e ripido dove salire con sci sullo zaino e ramponi." },
+            { bookRef: "Extra Canale", name: "Skokkelvika Gullys", area: "Vestvågøya", lat: 68.1950, lng: 13.7150, elev: 500, diff: "OS", isClassic: false, gully: true, desc: "Canali nord incassati, ideali per neve fredda e ripida." },
+            { bookRef: "Extra Barca", name: "Store Trolltind", area: "Trollfjorden (Barca)", lat: 68.3600, lng: 14.9500, elev: 1000, diff: "OSA", isClassic: false, gully: false, desc: "Accesso in barca. Ambiente alpino severo sopra il fiordo isolato." },
+            { bookRef: "Extra Barca", name: "TM7", area: "Trollfjorden (Barca)", lat: 68.3650, lng: 14.9600, elev: 800, diff: "OS", isClassic: false, gully: true, desc: "Ripidi pendii e canali spettacolari che precipitano in mare nel fiordo dei Troll." },
+            { bookRef: "Extra Barca", name: "Blåskavltinden", area: "Trollfjorden (Barca)", lat: 68.3800, lng: 14.9700, elev: 1000, diff: "OSA", isClassic: false, gully: true, desc: "Picco artico con ghiacciaio sommitale, creste affilate e discesa tecnica." },
+            { bookRef: "Extra Sud", name: "Naveren", area: "Flakstadøya", lat: 68.0460, lng: 13.2950, elev: 695, diff: "BS", isClassic: false, gully: false, desc: "Vetta solitaria a sud dell'isola di Flakstad con vista sul Vestfjorden." },
+            { bookRef: "Extra Sud", name: "Store Klauva", area: "Flakstad", lat: 68.1060, lng: 13.3850, elev: 775, diff: "BS", isClassic: false, gully: false, desc: "Dorsale vicina a Napp con neve spesso polverosa." }
         ];
 
         const map = L.map('map', { zoomControl: false }).setView([68.27, 14.20], 9);
@@ -210,15 +222,18 @@
                 const photoSearch = 'https://www.google.com/search?tbm=isch&q=' + encodeURIComponent(route.name + ' Lofoten ski touring');
                 const varsomUrl = 'https://www.varsom.no/en/avalanche-bulletins/';
 
-                const gullyTag = route.gully ? `<span class="tag-gully">⛏️ PICCA & RAMPONI</span>` : '';
+                const classicBadge = route.isClassic ? `<span class="badge badge-classic">⭐ CLASSICA</span>` : '';
+                const gullyBadge = route.gully ? `<span class="badge badge-gully">⛏️ CANALE</span>` : '';
+                const bookBadge = `<span class="badge badge-book">📖 ${route.bookRef}</span>`;
 
                 const popup = `
                     <div class="popup-content">
                         <h3>${route.name}</h3>
                         <div class="popup-info">
+                            <strong><i class="fa-solid fa-book"></i> Guida:</strong> ${route.bookRef}<br>
                             <strong><i class="fa-solid fa-location-dot"></i> Zona:</strong> ${route.area}<br>
-                            <strong>Quota:</strong> ${route.elev}m | Diff: <span class="badge ${route.diff}">${route.diff}</span> ${gullyTag}<br>
-                            <p style="margin-top:5px; font-size:0.75rem;">${route.desc}</p>
+                            <strong>Quota:</strong> ${route.elev}m | Diff: <span class="badge ${route.diff}">${route.diff}</span> ${classicBadge} ${gullyBadge}<br>
+                            <p style="margin-top:6px; font-size:0.75rem;">${route.desc}</p>
                         </div>
                         <div class="popup-links">
                             <a href="${navMap}" target="_blank" class="gmaps-btn"><i class="fa-solid fa-car"></i> Naviga al Parcheggio</a>
@@ -232,7 +247,7 @@
                 const marker = L.marker([route.lat, route.lng], { 
                     icon: L.divIcon({
                         className: 'custom-pin',
-                        html: `<div style="background-color: ${getColor(route.diff)}; width:16px; height:16px; border-radius:50%; border:2px solid white; box-shadow:0 0 5px #000;"></div>`,
+                        html: `<div style="background-color: ${getColor(route.diff)}; width:16px; height:16px; border-radius:50%; border:2px solid ${route.isClassic ? '#eab308' : 'white'}; box-shadow:0 0 5px #000;"></div>`,
                         iconSize: [16, 16]
                     })
                 }).bindPopup(popup).addTo(map);
@@ -244,12 +259,17 @@
                 card.innerHTML = `
                     <div class="route-title">
                         <span>${route.name}</span>
-                        <div>
+                        <div class="route-badges">
+                            ${bookBadge}
+                            ${classicBadge}
                             <span class="badge ${route.diff}">${route.diff}</span>
-                            ${gullyTag}
+                            ${gullyBadge}
                         </div>
                     </div>
-                    <div class="route-meta"><span><i class="fa-solid fa-mountain"></i> ${route.elev}m</span> <span><i class="fa-solid fa-location-dot"></i> ${route.area}</span></div>
+                    <div class="route-meta">
+                        <span><i class="fa-solid fa-mountain"></i> ${route.elev}m</span>
+                        <span><i class="fa-solid fa-location-dot"></i> ${route.area}</span>
+                    </div>
                     <div class="route-desc">${route.desc}</div>`;
 
                 card.addEventListener('click', () => { map.setView([route.lat, route.lng], 13); marker.openPopup(); });
@@ -274,10 +294,13 @@
             const filtered = routes.filter(r => {
                 let matchesDiff = false;
                 if (currentDifficulty === 'ALL') matchesDiff = true;
+                else if (currentDifficulty === 'CLASSIC') matchesDiff = r.isClassic === true;
                 else if (currentDifficulty === 'GULLY') matchesDiff = r.gully === true;
                 else matchesDiff = (r.diff === currentDifficulty);
 
-                const matchesQuery = r.name.toLowerCase().includes(query) || r.area.toLowerCase().includes(query);
+                const matchesQuery = r.name.toLowerCase().includes(query) || 
+                                     r.area.toLowerCase().includes(query) || 
+                                     r.bookRef.toLowerCase().includes(query);
                 return matchesDiff && matchesQuery;
             });
             renderRoutes(filtered);
